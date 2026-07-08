@@ -11,7 +11,7 @@ parser.add_argument('--kmeans_evaluation', action='store_true')
 parser.add_argument('--k_values', nargs= 2, default= (1, 5),  type= int )
 
 # for model training 
-parser.add_argument('--chosen_k_value', default=15, type= int  )
+parser.add_argument('--chosen_k_value', default=10, type= int  )
 parser.add_argument('--lr', default= .001, type= float, required=False)
 
 # for predicting 
@@ -42,8 +42,7 @@ if args.kmeans_evaluation:
 
 # training and predicting 
 if not args.predicting: # training calls  
-  data_processed= mh.get_data(args.application_file)
-  # training= mh.training(data_processed)
+  train= mh.training()
 
 
 

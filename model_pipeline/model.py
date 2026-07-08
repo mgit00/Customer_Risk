@@ -1,2 +1,29 @@
-class KMeans: 
-  def __init__(self, )
+'''
+this contains the kmeans model and fnn model 
+'''
+
+from sklearn.cluster import KMeans
+
+
+class KMeansModel: 
+  '''
+  first make kmeans model with the chosen k 
+  this will be trained to get centroid locations
+  then go through each instance and get distances form the instance to the centroid location
+  '''
+  def __init__(self, args): 
+    self.args = args 
+    self.model= None # initialize 
+
+  def train_model(self, data): # returns trained model 
+    k = self.args.chosen_k_value
+
+    kmeans= KMeans(n_clusters=k , random_state=1)
+    cluster_labels= kmeans.fit_predict(data )
+
+    self.model= kmeans # save to init 
+    return kmeans 
+
+
+  
+

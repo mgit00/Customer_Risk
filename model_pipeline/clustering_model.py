@@ -35,6 +35,13 @@ class ClusteringModel:
 
     return k_vals, intertias 
 
+
+
+
+
+
+
+
   
 
   
