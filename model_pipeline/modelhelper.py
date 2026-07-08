@@ -21,6 +21,12 @@ class ModelHelper:
 
 
     return data 
+  
+  # def clustering(self, data:pd.DataFrame): 
+  #   '''
+  #   with the pandas df, get the right k value for k means 
+  #   apply the clustering model 
+    # '''
 
 
 
