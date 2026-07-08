@@ -21,6 +21,11 @@ class ModelHelper:
 
 
     return data 
+
+  def tensor_data(self, f): 
+    # pandas df 
+    data= self.get_data(f)
+    
   
   # def clustering(self, data:pd.DataFrame): 
   #   '''

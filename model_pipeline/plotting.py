@@ -7,6 +7,7 @@ class ClusteringPlotting:
     self.args= args 
 
   def elbow_curve(self, k_vals, intertias): 
-    plt.plot([k_vals, intertias])
+    plt.plot(k_vals, intertias)
     plt.title('Elbow Curve for KMeans')
+    plt.savefig('images/elbow_curve.png')
     plt.show()
