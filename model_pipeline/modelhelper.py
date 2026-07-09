@@ -9,6 +9,8 @@ import numpy as np
 
 from model import KMeansModel
 
+from sklearn.metrics import pairwise_distances
+
 class ModelHelper: 
   def __init__(self, args ): 
     self.args= args 
@@ -31,9 +33,13 @@ class ModelHelper:
 
 
   def extract_features(self, data:np.array, centroids) -> pd.DataFrame: 
-    # for the centroid locations, go through data and 
-    print(centroids)
-    data.
+    # for the centroid locations, go through data and get euclidean distance 
+
+    # for i in range(self.args.chosen_k_value): 
+    #   distance = np.linalg.norm(data- centroids[i], axis=1 )
+    distances_df = pairwise_distances(data, centroids, metric= 'euclidean')
+
+    return distances_df 
 
 
 
@@ -58,6 +64,16 @@ class ModelHelper:
 
     # then go through each instance and get distances form the instance to the centroid location 
     distances_df= self.extract_features(data, model.cluster_centers_)
+    data_distances= np.concat([data, distances_df], axis=1 )
+    data_distances = pd.DataFrame(data_distances)
+
+    # now join the distances to the risk based on ID 
+    ids= pd.read_csv(self.args.application_file).ID
+    full_data= ids.join(data_distances) # join based on index 
+    
+    risk= pd.read_csv(self.args.risk_file)
+
+    joined= here
 
     raise Exception('here')
 
