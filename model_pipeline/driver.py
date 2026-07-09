@@ -4,7 +4,7 @@ parser= argparse.ArgumentParser()
 
 # datafile 
 parser.add_argument('--application_file', default= 'dataset/application_record_processed.csv')
-
+parser.add_argument('--risk_file', default= 'dataset/credit_risk.csv')
 # for creating elbow curve for k means algo 
   # example: --kmeans_evaluation --k_values 1 30
 parser.add_argument('--kmeans_evaluation', action='store_true')
