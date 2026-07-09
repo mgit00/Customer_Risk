@@ -5,6 +5,7 @@ parser= argparse.ArgumentParser()
 # datafile 
 parser.add_argument('--application_file', default= 'dataset/application_record_processed.csv')
 parser.add_argument('--risk_file', default= 'dataset/credit_risk.csv')
+parser.add_argument('--application_risk_file', default= 'dataset/customer_application_risk.csv')
 # for creating elbow curve for k means algo 
   # example: --kmeans_evaluation --k_values 1 30
 parser.add_argument('--kmeans_evaluation', action='store_true')
@@ -12,6 +13,8 @@ parser.add_argument('--k_values', nargs= 2, default= (1, 5),  type= int )
 
 # for model training 
 parser.add_argument('--chosen_k_value', default=10, type= int  )
+parser.add_argument('--epochs', default= 3, type = int )
+parser.add_argument('--batch_size', default = 5, type = int )
 parser.add_argument('--lr', default= .001, type= float, required=False)
 
 # for predicting 

@@ -3,6 +3,7 @@ this contains the kmeans model and fnn model
 '''
 
 from sklearn.cluster import KMeans
+import torch.nn as nn 
 
 
 class KMeansModel: 
@@ -22,7 +23,17 @@ class KMeansModel:
     cluster_labels= kmeans.fit_predict(data )
 
     self.model= kmeans # save to init 
-    return kmeans 
+    return kmeans
+
+  def predict(self, data): 
+    pred = self.model.predict(data) 
+    return pred 
+
+
+
+class FNN(nn.Module): 
+  def __init__(self): 
+    FNN.sup
 
 
   
