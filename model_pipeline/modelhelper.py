@@ -118,6 +118,7 @@ class ModelHelper:
     
     # go through each instance and get distances from the instance to the centroid location 
     distances_df= self.extract_features(datax, self.kmeansmodel.model.cluster_centers_)
+    distances_df= pd.DataFrame(distances_df)
     datax_distances= pd.concat([datax, distances_df], axis=1 )
     # the datax_distances df now has the customer application risk and distance from clusters as features 
     

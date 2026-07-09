@@ -18,9 +18,12 @@ class Train:
     batching is used for better backpropogation updates 
     '''
 
-    input_size= 
-    hidden_sizes= 
-    output_size= 
+    print(train_loader.shape)
+
+    raise Exception('here')
+    # input_size= 
+    # hidden_sizes= 
+    # output_size= 
 
     model = FNN(input_size, hidden_sizes, output_size)
     loss_metric= HuberLoss()
@@ -33,9 +36,26 @@ class Train:
       for xbatch, ybatch in train_loader:
         # make forward pass 
         pred = model(xbatch) # forward 
-        loss = loss_metric()
+        loss = loss_metric(pred, ybatch)
+
+        loss_epoch+= loss
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
 
       model.eval()
-
+      loss_epoch_test= 0
       for xbatch, ybatch in test_loader: 
         # do prediction 
+        pred = model(xbatch)
+        loss= loss_metric(pred, ybatch)
+        loss_epoch_test+= loss
+
+      print(epoch, loss_epoch, loss_epoch_test )
+
+    
+
+
+

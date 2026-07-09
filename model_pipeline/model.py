@@ -33,7 +33,7 @@ class KMeansModel:
 
 class FNN(nn.Module): 
   def __init__(self): 
-    FNN.sup
+    pass
 
 
   
