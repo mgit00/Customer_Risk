@@ -112,7 +112,7 @@ class ModelHelper:
     ''' 
     full_data= self.get_data(self.args.application_file)
     data= self.get_data(self.args.application_risk_file)
-    datax, datay = data.iloc[:, :-2], data.iloc[:,-2:]
+    datax, datay = data.iloc[:, :-1], data.iloc[:,-1]
 
     pred= self.kmeans_training(datax, full_data)
     
