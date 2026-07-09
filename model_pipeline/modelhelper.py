@@ -22,7 +22,7 @@ class ModelHelper:
     self.args= args 
     self.kmeansmodel= None # initalized later in training()
     self.train_instance= None # initalized later in training()
-
+    
 
 
   def get_data(self, f): 
@@ -76,12 +76,14 @@ class ModelHelper:
     make into tensor dataset 
     make into dataloader object 
     '''
-    x= torch.tensor(x)
-    y= torch.tensor(y)
+    x= torch.tensor(x.values, dtype=torch.float32) # values to convert to np array 
+    y= torch.tensor(y.values, dtype= torch.float32)
 
-    device= torch.device('cuda' if torch.cuda.is_available() else 'gpu')
-    x= x.to(device) # dataset is relatively small so can place it entirely on gpu now 
-    y= y.to(device)
+    print(torch.any(torch.isnan(x)), torch.any(torch.isnan(y))) 
+
+    self.args.device= torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    x.to(self.args.device) # dataset is relatively small so can place it entirely on gpu now 
+    y.to(self.args.device)
 
     # split into train test chunks 
     xtrain, xtest, ytrain, ytest= train_test_split(x, y, test_size=.15, shuffle=True, random_state=1 )
@@ -112,10 +114,11 @@ class ModelHelper:
     ''' 
     full_data= self.get_data(self.args.application_file)
     data= self.get_data(self.args.application_risk_file)
-    datax, datay = data.iloc[:, :-1], data.iloc[:,-1]
+    datax, datay = data.iloc[:, :-1], data.iloc[:,-1].to_frame()
 
     pred= self.kmeans_training(datax, full_data)
-    
+    print('K Means Training Done')
+
     # go through each instance and get distances from the instance to the centroid location 
     distances_df= self.extract_features(datax, self.kmeansmodel.model.cluster_centers_)
     distances_df= pd.DataFrame(distances_df)
@@ -123,15 +126,18 @@ class ModelHelper:
     # the datax_distances df now has the customer application risk and distance from clusters as features 
     
     # convert to tensors as needed and continue onto FNN 
+    self.args.input_size = datax_distances.shape[1] # number of features 
+    self.args.output_size = 1 # series 
     train_loader, test_loader= self.loading_data(datax_distances, datay)
 
 
     # use the data to pass to the FNN now 
     # begin training loop 
     self.train_instance= Train(self.args)
-    self.train_instance.train()
+    self.train_instance.training_loop(train_loader, test_loader)
 
 
+    print('KNN Training Done')
     raise Exception('here')
 
 

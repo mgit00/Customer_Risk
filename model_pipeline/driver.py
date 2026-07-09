@@ -15,6 +15,7 @@ parser.add_argument('--k_values', nargs= 2, default= (1, 5),  type= int )
 parser.add_argument('--chosen_k_value', default=10, type= int  )
 parser.add_argument('--epochs', default= 3, type = int )
 parser.add_argument('--batch_size', default = 5, type = int )
+parser.add_argument('--hidden_sizes', nargs= '+', type= int , default = [16, 32, 16])
 parser.add_argument('--lr', default= .001, type= float, required=False)
 
 # for predicting 

@@ -32,8 +32,24 @@ class KMeansModel:
 
 
 class FNN(nn.Module): 
-  def __init__(self): 
-    pass
+  def __init__(self, input_size, hidden_sizes, output_size): 
+    super().__init__()
+
+    '''
+    make model of 1 layer for trial 
+    '''
+
+    self.layers= nn.Sequential(
+      nn.Linear(input_size, 32), 
+      nn.ReLU(), 
+      nn.Linear(32, output_size)
+    )
+
+
+  def forward(self, data): 
+    res= self.layers(data)
+
+    return res 
 
 
   
