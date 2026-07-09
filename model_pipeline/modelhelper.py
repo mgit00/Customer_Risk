@@ -128,9 +128,7 @@ class ModelHelper:
     # use the data to pass to the FNN now 
     # begin training loop 
     self.train_instance= Train(self.args)
-    for epoch in range(self.args.epochs): 
-
-      print(epoch)
+    self.train_instance.train()
 
 
     raise Exception('here')

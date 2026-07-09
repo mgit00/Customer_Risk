@@ -1,4 +1,6 @@
 from model import FNN 
+from torch.nn import HuberLoss
+from torch.optim import Adam
 
 
 class Train: 
@@ -21,12 +23,19 @@ class Train:
     output_size= 
 
     model = FNN(input_size, hidden_sizes, output_size)
-    loss= 
+    loss_metric= HuberLoss()
+    optimizer= Adam(model.parm)
 
     for epoch in range(self.args.epochs): 
       model.train()
-
+      loss_epoch = 0 
 
       for xbatch, ybatch in train_loader:
         # make forward pass 
+        pred = model(xbatch) # forward 
+        loss = loss_metric()
 
+      model.eval()
+
+      for xbatch, ybatch in test_loader: 
+        # do prediction 
