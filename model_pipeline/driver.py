@@ -33,8 +33,8 @@ parser.add_argument('--lr', default= .001, type= float, required=False)
   # load model if filename is given 
 parser.add_argument('--save_model_kmeans', const= 'saved_models/kmeans.pkl', nargs= '?', type = str )
 parser.add_argument('--load_model_kmeans', const= 'saved_models/kmeans.pkl', nargs= '?', type = str)
-parser.add_argument('--save_modek_knn', const = 'saved_models/kmeans.pkl', nargs='?')
-parser.add_argument('--load_modek_knn', const = 'saved_models/kmeans.pkl', nargs='?')
+parser.add_argument('--save_model_knn', const = 'saved_models/kmeans.pkl', nargs='?')
+parser.add_argument('--load_model_knn', const = 'saved_models/kmeans.pkl', nargs='?')
 
 
 # for predicting 
