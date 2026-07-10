@@ -79,8 +79,6 @@ class ModelHelper:
     x= torch.tensor(x.values, dtype=torch.float32) # values to convert to np array 
     y= torch.tensor(y.values, dtype= torch.float32)
 
-    print(torch.any(torch.isnan(x)), torch.any(torch.isnan(y))) 
-
     self.args.device= torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     x.to(self.args.device) # dataset is relatively small so can place it entirely on gpu now 
     y.to(self.args.device)
