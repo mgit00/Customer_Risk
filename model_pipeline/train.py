@@ -16,6 +16,8 @@ class Train:
     on the gpu (if available)
     using batching, but the entire tensors are already on the gpu memory since they are small 
     batching is used for better backpropogation updates 
+
+    - do work with saving or loading model 
     '''
 
 

@@ -3,6 +3,7 @@ data processing
 calls training 
 calls predicting 
 '''
+import pickle 
 
 import pandas as pd 
 import numpy as np 
@@ -52,18 +53,32 @@ class ModelHelper:
   def kmeans_training(self, datax, full_data):
     '''
     get kmeans clusters, and make centroids into features 
-    join the data to the cluster-distance features 
+    join the data to the cluster-distance features
+
+    - do work with saving or loading model  
     '''
 
-    # first make kmeans model with the chosen k 
-    # this will be trained to get centroid locations
-    # this can be done with the larger dataset application_file to improve model performance 
-    # and prevent overfitting 
-    self.kmeansmodel= KMeansModel(self.args)
-    self.kmeansmodel.train_model(full_data)
+    if self.args.load_model_kmeans: 
+      print('Loading in KMeans model')
+      self.kmeansmodel= pickle.load(open(self.args.load_model_kmeans, 'rb'))
+    else: 
+      # first make kmeans model with the chosen k 
+      # this will be trained to get centroid locations
+      # this can be done with the larger dataset application_file to improve model performance 
+      # and prevent overfitting 
+      print('Training, not loading in KMeans model')
+      self.kmeansmodel= KMeansModel(self.args)
+      self.kmeansmodel.train_model(full_data)
 
     # now get the predicitons for the application_risk dataset 
     pred = self.kmeansmodel.predict(datax)
+
+    # save model if needed: 
+    if self.args.save_model_kmeans: 
+      print('Saving KMeans model')
+      pickle.dump(self.kmeansmodel, open(self.args.save_model_kmeans, 'wb'))
+    
+    
     return pred 
 
   def loading_data(self, x, y): # -> dataloader objects 
@@ -115,7 +130,7 @@ class ModelHelper:
     datax, datay = data.iloc[:, :-1], data.iloc[:,-1].to_frame()
 
     pred= self.kmeans_training(datax, full_data)
-    print('K Means Training Done')
+    print('K Means Model Done')
 
     # go through each instance and get distances from the instance to the centroid location 
     distances_df= self.extract_features(datax, self.kmeansmodel.model.cluster_centers_)
