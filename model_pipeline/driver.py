@@ -56,6 +56,7 @@ else:
 
 print(args)
 
+raise Exception('here')
 
 from modelhelper import ModelHelper
 from clustering_model import ClusteringModel 
