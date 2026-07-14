@@ -1,5 +1,13 @@
 import argparse 
+import pandas as pd 
 
+from args_commands import commands 
+
+from modelhelper import ModelHelper
+from clustering_model import ClusteringModel 
+
+
+print('beginning')
 parser= argparse.ArgumentParser()
 '''
 this is the parser 
@@ -10,7 +18,7 @@ there are 2 ways to use it
 
 parser.add_argument('--command_file', action= 'store_true') # True if called, else False 
 
-
+raise Exception('nw')
 
 # datafile 
 parser.add_argument('--application_file', default= 'dataset/application_record_processed.csv')
@@ -44,7 +52,7 @@ parser.add_argument('--predicting', default = False , type = str)
 
 args= parser.parse_args()
 # if command_line is given, then all other args get overridden by the file args 
-from args_commands import commands 
+
 
 
 # commands= []
@@ -56,10 +64,6 @@ else:
 
 print(args)
 
-raise Exception('here')
-
-from modelhelper import ModelHelper
-from clustering_model import ClusteringModel 
 
 mh= ModelHelper(args) # initialize 
 

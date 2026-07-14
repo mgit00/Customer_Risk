@@ -1,8 +1,3 @@
-'''
-data processing 
-calls training 
-calls predicting 
-'''
 import pickle 
 
 import pandas as pd 
@@ -18,7 +13,15 @@ import torch
 from torch.utils.data import TensorDataset
 from torch.utils.data import DataLoader
 
+
+
+
 class ModelHelper: 
+  '''
+  data processing 
+  calls training 
+  calls predicting 
+  '''
   def __init__(self, args ): 
     self.args= args 
     self.kmeansmodel= None # initalized later in training()
@@ -33,6 +36,7 @@ class ModelHelper:
     convert to tensors 
     '''
     data= pd.read_csv(f )
+    print(data.head())
     data.drop(columns= ['ID'], axis=1 , inplace = True )
 
     return data 

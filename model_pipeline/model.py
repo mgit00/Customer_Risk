@@ -1,9 +1,9 @@
-'''
-this contains the kmeans model and fnn model 
-'''
-
-from sklearn.cluster import KMeans
 import torch.nn as nn 
+from sklearn.cluster import KMeans
+
+# '''
+# this contains the kmeans model and fnn model 
+# '''
 
 
 class KMeansModel: 

@@ -1,13 +1,14 @@
+from sklearn.cluster import KMeans
+import pandas as pd 
+
+from plotting import ClusteringPlotting
+
 '''
 do k means for multiple k values 
 plot the intertia against k 
 pick the best k, and save model 
 '''
 
-from sklearn.cluster import KMeans
-import pandas as pd 
-
-from plotting import ClusteringPlotting
 
 class ClusteringModel: 
   def __init__(self, args, data: pd.DataFrame): 
