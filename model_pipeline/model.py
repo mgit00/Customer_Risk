@@ -51,8 +51,12 @@ class FNN(nn.Module):
       self.layers= nn.Sequential()
 
       self.layers.append(nn.Linear(input_size, hiddens[0]))
+      self.layers.append(nn.BatchNorm1d(hiddens[0])) # because of 0,1 scaling 
+      self.layers.append(nn.ReLU())
       for i in range(len(hiddens)-1): 
         self.layers.append(nn.Linear(hiddens[i], hiddens[i+1]))
+        self.layers.append(nn.BatchNorm1d(hiddens[i+1]))
+        self.layers.append(nn.ReLU()) # so model doesn't collapse into linear model 
       self.layers.append(nn.Linear(hiddens[-1], output_size))
 
 

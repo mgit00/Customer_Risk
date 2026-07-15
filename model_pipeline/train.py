@@ -22,6 +22,7 @@ class Train:
 
     return final model state 
     '''
+    
 
 
     input_size= self.args.input_size # 55 
@@ -40,9 +41,9 @@ class Train:
     epochs_completed = 0 
 
     # load in model if needed 
-    if self.args.load_model_knn: 
+    if self.args.load_model_fnn: 
       # get model state 
-      model_state= torch.load(self.args.load_model_knn)
+      model_state= torch.load(self.args.load_model_fnn)
 
       # load in state_dict for model and optimizr
       model.load_state_dict(model_state['model_state_dict'])
@@ -52,7 +53,7 @@ class Train:
       epochs_completed= model_state['epochs_completed']
       train_loss_data= model_state['train_loss_data']
       test_loss_data= model_state['test_loss_data']
-      print('KNN Model Loaded in From ', self.args.load_model_knn)
+      print('FNN Model Loaded in From ', self.args.load_model_fnn)
 
 
     for epoch in range(self.args.epochs): 
@@ -73,7 +74,8 @@ class Train:
 
       model.eval()
       loss_epoch_test= 0
-      for xbatch, ybatch in test_loader: 
+      for xbatch, ybatch in test_loader:
+
         # do prediction 
         pred = model(xbatch)
         loss= loss_metric(pred, ybatch)
@@ -81,7 +83,7 @@ class Train:
 
       train_loss_data.append(loss_epoch)
       test_loss_data.append(loss_epoch_test)
-      print(epoch +epochs_completed , loss_epoch, loss_epoch_test )
+      print('Epochs:', epoch +epochs_completed , 'Train Loss:',  loss_epoch, 'Test Loss:', loss_epoch_test )
 
        
 
@@ -104,9 +106,9 @@ class Train:
         'test_loss_data': test_loss_data
       }
 
-    if self.args.save_model_knn: 
-      torch.save(model_state, self.args.save_model_knn)
-      print('Model state saved to', self.args.save_model_knn)
+    if self.args.save_model_fnn: 
+      torch.save(model_state, self.args.save_model_fnn)
+      print('Model state saved to', self.args.save_model_fnn)
       
     
     return model_state

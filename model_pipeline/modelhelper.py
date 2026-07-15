@@ -99,8 +99,9 @@ class ModelHelper:
     y= torch.tensor(y.values, dtype= torch.float32)
 
     self.args.device= torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    x.to(self.args.device) # dataset is relatively small so can place it entirely on gpu now 
-    y.to(self.args.device)
+    print('Device Used:', self.args.device)
+    x= x.to(self.args.device) # dataset is relatively small so can place it entirely on gpu now 
+    y= y.to(self.args.device) # reassign to ensure cuda is used, and we aren't just creating a copy on cupu 
 
     # split into train test chunks 
     xtrain, xtest, ytrain, ytest= train_test_split(x, y, test_size=.15, shuffle=True, random_state=1 )
@@ -150,7 +151,7 @@ class ModelHelper:
 
     # use the data to pass to the FNN now 
     # begin training loop 
-    print('Beginning KNN Portion')
+    print('Beginning FNN Portion')
     self.train_instance= Train(self.args)
     model_state= self.train_instance.training_loop(train_loader, test_loader)
 
@@ -162,7 +163,8 @@ class ModelHelper:
 
 
     print('KNN Training Done')
-    raise Exception('here')
+    
+    return # None 
 
 
 
