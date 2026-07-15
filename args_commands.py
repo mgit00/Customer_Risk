@@ -1,5 +1,0 @@
-
-commands = [
-  '--epochs=2', 
-  
-]

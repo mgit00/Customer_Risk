@@ -45,6 +45,8 @@ class FNN(nn.Module):
       nn.Linear(32, output_size)
     )
 
+    print('FNN model is: ' , self.layers)
+
 
   def forward(self, data): 
     res= self.layers(data)

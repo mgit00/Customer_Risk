@@ -1,0 +1,6 @@
+scikit-learn
+torchvision
+pandas
+numpy=2.0.1
+# setuptools=78.1.1
+seaborn

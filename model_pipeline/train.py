@@ -42,12 +42,15 @@ class Train:
       # get model state 
       model_state= torch.load(self.args.load_model_knn)
 
-      model.state_dict= model_state['model_state_dict']
-      optimizer.state_dict= model_state['optimizer_state_dict']
+      # load in state_dict for model and optimizr
+      model.load_state_dict(model_state['model_state_dict'])
+      optimizer.load_state_dict(model_state['optimizer_state_dict'])
 
+      # update epoch count, train losses and test losses to start from previous model info 
       epochs_completed= model_state['epochs_completed']
       train_loss_data= model_state['train_loss_data']
       test_loss_data= model_state['test_loss_data']
+      print('KNN Model Loaded in From ', self.args.load_model_knn)
 
 
     for epoch in range(self.args.epochs): 
@@ -100,7 +103,7 @@ class Train:
 
     if self.args.save_model_knn: 
       torch.save(model_state, self.args.save_model_knn)
-      print('Model state saved')
+      print('Model state saved to', self.args.save_model_knn)
       
     
 

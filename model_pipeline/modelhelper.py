@@ -36,7 +36,6 @@ class ModelHelper:
     convert to tensors 
     '''
     data= pd.read_csv(f )
-    print(data.head())
     data.drop(columns= ['ID'], axis=1 , inplace = True )
 
     return data 
@@ -63,7 +62,7 @@ class ModelHelper:
     '''
 
     if self.args.load_model_kmeans: 
-      print('Loading in KMeans model')
+      print('Loading in KMeans model from ', self.args.load_model_kmeans)
       self.kmeansmodel= pickle.load(open(self.args.load_model_kmeans, 'rb'))
     else: 
       # first make kmeans model with the chosen k 
@@ -79,7 +78,7 @@ class ModelHelper:
 
     # save model if needed: 
     if self.args.save_model_kmeans: 
-      print('Saving KMeans model')
+      print('Saving KMeans model to ', self.args.save_model_kmeans)
       pickle.dump(self.kmeansmodel, open(self.args.save_model_kmeans, 'wb'))
     
     
@@ -134,7 +133,7 @@ class ModelHelper:
     datax, datay = data.iloc[:, :-1], data.iloc[:,-1].to_frame()
 
     pred= self.kmeans_training(datax, full_data)
-    print('K Means Model Done')
+    print('K Means Portion Done')
 
     # go through each instance and get distances from the instance to the centroid location 
     distances_df= self.extract_features(datax, self.kmeansmodel.model.cluster_centers_)
@@ -150,6 +149,7 @@ class ModelHelper:
 
     # use the data to pass to the FNN now 
     # begin training loop 
+    print('Beginning KNN Portion')
     self.train_instance= Train(self.args)
     self.train_instance.training_loop(train_loader, test_loader)
 
