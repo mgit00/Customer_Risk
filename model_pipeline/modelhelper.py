@@ -5,6 +5,7 @@ import numpy as np
 
 from model import KMeansModel
 from train import Train 
+from plotting import TrainingPlotting
 
 from sklearn.metrics import pairwise_distances
 from sklearn.model_selection import train_test_split
@@ -26,7 +27,7 @@ class ModelHelper:
     self.args= args 
     self.kmeansmodel= None # initalized later in training()
     self.train_instance= None # initalized later in training()
-    
+  
 
 
   def get_data(self, f): 
@@ -151,7 +152,13 @@ class ModelHelper:
     # begin training loop 
     print('Beginning KNN Portion')
     self.train_instance= Train(self.args)
-    self.train_instance.training_loop(train_loader, test_loader)
+    model_state= self.train_instance.training_loop(train_loader, test_loader)
+
+    # plot the KNN training 
+    trainingplotting= TrainingPlotting(self.args)
+    trainingplotting.plotting(model_state['epochs_completed'], 
+                              model_state['train_loss_data'], 
+                              model_state['test_loss_data'], )
 
 
     print('KNN Training Done')

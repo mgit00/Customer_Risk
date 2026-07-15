@@ -19,6 +19,8 @@ class Train:
     batching is used for better backpropogation updates 
 
     - do work with saving or loading model 
+
+    return final model state 
     '''
 
 
@@ -93,6 +95,7 @@ class Train:
 
     # model state 
       model_state = {
+        'args': self.args, 
         'model_state_dict': model.state_dict(), 
         'optimizer_state_dict': optimizer.state_dict(), 
 
@@ -106,6 +109,7 @@ class Train:
       print('Model state saved to', self.args.save_model_knn)
       
     
+    return model_state
 
 
 
