@@ -29,7 +29,7 @@ class Train:
     output_size= self.args.output_size # 1 
 
 
-    model = FNN(input_size, hidden_sizes, output_size)
+    model = FNN(self.args, input_size, hidden_sizes, output_size)
     model.to(self.args.device) # place on gpu if available 
     
     loss_metric= MSELoss() #HuberLoss()

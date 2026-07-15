@@ -32,18 +32,29 @@ class KMeansModel:
 
 
 class FNN(nn.Module): 
-  def __init__(self, input_size, hidden_sizes, output_size): 
+  def __init__(self, args, input_size, hidden_sizes, output_size): 
     super().__init__()
 
     '''
     make model of 1 layer for trial 
     '''
+    self.args = args 
 
-    self.layers= nn.Sequential(
-      nn.Linear(input_size, 32), 
-      nn.ReLU(), 
-      nn.Linear(32, output_size)
-    )
+    if not self.args.hidden_sizes: # no layers specified, default to simple model here 
+      self.layers= nn.Sequential(
+        nn.Linear(input_size, 32), 
+        nn.ReLU(), 
+        nn.Linear(32, output_size)
+      )
+    else: 
+      hiddens= self.args.hidden_sizes
+      self.layers= nn.Sequential()
+
+      self.layers.append(nn.Linear(input_size, hiddens[0]))
+      for i in range(len(hiddens)-1): 
+        self.layers.append(nn.Linear(hiddens[i], hiddens[i+1]))
+      self.layers.append(nn.Linear(hiddens[-1], output_size))
+
 
     print('FNN model is: ' , self.layers)
 

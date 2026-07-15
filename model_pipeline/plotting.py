@@ -27,6 +27,8 @@ class TrainingPlotting:
 
     plt.title('Train and Test Losses for Epochs')
     plt.legend()
+
+    plt.savefig(self.args.model_training_loss_plot)
     plt.show()
 
 

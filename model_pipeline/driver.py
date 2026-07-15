@@ -17,7 +17,7 @@ there are 2 ways to use it
 '''
 
 parser.add_argument('--command_file', action= 'store_true', ) # True if called, else False 
-
+# parser = argparse.ArgumentParser(fromfile_prefix_chars='@') # can also try this way 
 
 # datafile 
 parser.add_argument('--application_file', default= 'dataset/application_record_processed.csv')
@@ -32,7 +32,8 @@ parser.add_argument('--k_values', nargs= 2, default= (1, 5),  type= int, help= '
 parser.add_argument('--chosen_k_value', default=10, type= int  )
 parser.add_argument('--epochs', default= 3, type = int )
 parser.add_argument('--batch_size', default = 5, type = int )
-parser.add_argument('--hidden_sizes', nargs= '+', type= int , default = [16, 32, 16], help= 'hidden layer sizes')
+# parser.add_argument('--hidden_sizes', nargs= '+', type= int , default = [16, 32, 16], help= 'hidden layer sizes')
+parser.add_argument('--hidden_sizes', action= 'append', type = int , default = [], help= 'hidden layer sizes')
 parser.add_argument('--lr', default= .001, type= float, required=False)
 
 # model saving and loading 
@@ -40,9 +41,9 @@ parser.add_argument('--lr', default= .001, type= float, required=False)
   # load model if filename is given 
 parser.add_argument('--save_model_kmeans', const= 'saved_models/kmeans.pkl', nargs= '?', type = str )
 parser.add_argument('--load_model_kmeans', const= 'saved_models/kmeans.pkl', nargs= '?', type = str)
-parser.add_argument('--save_model_knn', const = 'saved_models/knn.pkl', nargs='?')
-parser.add_argument('--load_model_knn', const = 'saved_models/knn.pkl', nargs='?')
-
+parser.add_argument('--save_model_knn', const = 'saved_models/knn.pt', nargs='?')
+parser.add_argument('--load_model_knn', const = 'saved_models/knn.pt', nargs='?')
+parser.add_argument('--model_training_loss_plot', default= 'images/knn_training_loss.png', type= str )
 
 # for predicting 
 parser.add_argument('--predicting', default = False , type = str)
@@ -60,6 +61,7 @@ else:
 
 
 print(args)
+
 
 
 mh= ModelHelper(args) # initialize 
