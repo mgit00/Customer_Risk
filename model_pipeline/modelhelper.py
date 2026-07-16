@@ -113,7 +113,7 @@ class ModelHelper:
 
     # make into 
     train_loader= DataLoader(train, batch_size=self.args.batch_size, shuffle= True)
-    test_loader= DataLoader(test, batch_size=1, shuffle= True )
+    test_loader= DataLoader(test, batch_size=self.args.batch_size, shuffle= True )
 
     return train_loader, test_loader 
 
