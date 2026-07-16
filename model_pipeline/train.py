@@ -43,7 +43,7 @@ class Train:
     # load in model if needed 
     if self.args.load_model_fnn: 
       # get model state 
-      model_state= torch.load(self.args.load_model_fnn)
+      model_state= torch.load(self.args.load_model_fnn, weights_only=False)
 
       # load in state_dict for model and optimizr
       model.load_state_dict(model_state['model_state_dict'])

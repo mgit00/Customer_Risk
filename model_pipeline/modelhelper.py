@@ -1,7 +1,8 @@
 import pickle 
 
 import pandas as pd 
-import numpy as np 
+import numpy as np
+from scipy.spatial import transform 
 
 from model import KMeansModel
 from train import Train 
@@ -9,6 +10,7 @@ from plotting import TrainingPlotting
 
 from sklearn.metrics import pairwise_distances
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import RobustScaler, MinMaxScaler
 
 import torch 
 from torch.utils.data import TensorDataset
@@ -50,6 +52,12 @@ class ModelHelper:
     # for i in range(self.args.chosen_k_value): 
     #   distance = np.linalg.norm(data- centroids[i], axis=1 )
     distances_df = pairwise_distances(data, centroids, metric= 'euclidean')
+
+    # scale the distances to -1 to 1 
+    # scaler= RobustScaler().set_output(transform= 'pandas') # returns np array
+    # distances_df= scaler.fit_transform(distances_df)
+    scaler= MinMaxScaler(feature_range= (-1, 1)).set_output(transform= 'pandas')
+    distances_df = scaler.fit_transform(distances_df)
 
     return distances_df 
 
@@ -142,7 +150,10 @@ class ModelHelper:
     distances_df= pd.DataFrame(distances_df)
     datax_distances= pd.concat([datax, distances_df], axis=1 )
     # the datax_distances df now has the customer application risk and distance from clusters as features 
-    
+    # save data
+    datax_distances.to_csv('dataset_redo/kmeans_customer_application_risk.csv', index= False )
+    print('Final Dataset w/ KMeans saved to: dataset_redo/kmeans_customer_application_risk.csv ')
+
     # convert to tensors as needed and continue onto FNN 
     self.args.input_size = datax_distances.shape[1] # number of features 
     self.args.output_size = 1 # series 
