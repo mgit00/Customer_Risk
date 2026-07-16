@@ -61,6 +61,13 @@ class FNN(nn.Module):
       self.layers.append(nn.Linear(hiddens[-1], output_size))
 
 
+    def init_weights(m):
+      if isinstance(m, nn.Linear):
+          nn.init.xavier_uniform(m.weight)
+          m.bias.data.fill_(0.01)
+
+    self.layers.apply(init_weights)
+
     print('FNN model is: ' , self.layers)
 
 
