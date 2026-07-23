@@ -84,11 +84,11 @@ class DataProcessing:
 
         # place columntransformer into overarching pipeline 
         transformer_pipeline= Pipeline(steps=[
-            ('data_transform', column_transformer) # data transformation step 
+            ('data_transform',  column_transformer) # data transformation step 
         ])
 
         # fit and predict 
-        transformer_pipeline.fit(apps)
+        transformer_pipeline.fit(apps )
         res = transformer_pipeline.transform(apps)
         return res
 
