@@ -1,2 +1,8 @@
-# NASA_Satellites
-This project uses NASA Satellite Data MODISC6 and VIIRS 375m from 2019-08-01 to 2020-01-11, from https://www.kaggle.com/datasets/carlosparadis/fires-from-space-australia-and-new-zeland?select=fire_nrt_M6_96619.csv
+# Bank Credit Risk 
+This project uses credit card application and bank record data from https://www.kaggle.com/datasets/rikdifos/credit-card-approval-prediction. 
+
+with this data, i will create an end-to-end pipeline which classifies the risk level of approving a credit card application for a customer. 
+
+This can be integrated into a much larger application which can ultimatly decide whether or not to apporve a credit card application. This larger system will take into account the national economy, local neightborhood of the applicant, and the company's overall need to expand into a larger customer base (which requires more approvals). 
+
+
