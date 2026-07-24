@@ -41,16 +41,9 @@ to create a credit risk classifier, the following has to be done:
 
 
 # workflow 
-- <input type="checkbox" > pipeline.py 
-    - <input type="checkbox" checked> set up argparse  
-    - <input type="checkbox" > pipleine workflow class 
-        - <input type="checkbox" > data processing of both dfs 
-- <input type="checkbox" > utils.py 
-    - <input type="checkbox" checked> save /read df 
-- <input type="checkbox"> data_processing.py 
-    - <input type="checkbox" checked> convert credit_record -> customer_risk
-    - <input type="checkbox" > convert application_record -> application_processing 
-
+- one hot encode occupation type 
+- drop flag mobile 
+- finish the dataprocessing step, and branch
     
 ### notes: 
 - the reason why this is a classification problem rather than regression is that the regression model does not have enough samples to train on. it is possibly (?) easier to train on a classifyer rather than a regressor. 

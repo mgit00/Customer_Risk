@@ -78,7 +78,7 @@ class Pipeline:
 
         # applications processed 
         application_record = Utils.read_data(self.args.application_record)
-        applications_processed = dp.customer_risk_processing(application_record)
+        applications_processed = dp.cc_applications_processing(application_record)
         Utils.save_df(applications_processed, self.args.applications_processed)
 
         # save the encoders for the predict step ... 
