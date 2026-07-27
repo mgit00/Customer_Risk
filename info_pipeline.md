@@ -41,9 +41,14 @@ to create a credit risk classifier, the following has to be done:
 
 
 # workflow 
-- one hot encode occupation type 
-- drop flag mobile 
-- finish the dataprocessing step, and branch
+- build out the pipeline 
+    - encoding
+        - split the pipelines with column transformer 
+        - encode the cols differently 
+        - done 
+    - scaling 
+        - scale differently based on needs 
+    - dropping 
     
 ### notes: 
 - the reason why this is a classification problem rather than regression is that the regression model does not have enough samples to train on. it is possibly (?) easier to train on a classifyer rather than a regressor. 
