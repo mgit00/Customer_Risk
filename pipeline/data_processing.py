@@ -6,6 +6,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 
+from sklearn.preprocessing import StandardScaler, RobustScaler
+from sklearn.pipeline import FunctionTransformer, FeatureUnion
+
 '''
 process the customer records dataset
 '''
@@ -68,16 +71,15 @@ class DataProcessing:
 
         '''
 
-        # dop flag_mobill 
-        apps.drop(['FLAG_MOBIL'], axis= 1, inplace= True)
+        
         encoder = self.encoder_pipeline()
-        # scaler= self.scaler_pipeline()
+        scaler= self.scaler_pipeline()
         # drops= self.drops_pipeline()
 
         # nested pipelines
         pipeline = Pipeline(steps=[ 
             ('encoding', encoder),  # column transformer 
-            # ('scaling', scaler), 
+            ('scaling', scaler), 
             # ('drop', drops) 
         ])
         pipeline.set_output(transform='pandas')
@@ -85,9 +87,13 @@ class DataProcessing:
         apps= pipeline.fit_transform(apps)
 
 
+        # # dop flag_mobill 
+        # apps.drop(['FLAG_MOBIL'], axis= 1, inplace= True)
         
          
         return apps
+    
+
     def encoder_pipeline(self): 
         '''
         this creates the pipeline for encoding the cols 
@@ -133,173 +139,93 @@ class DataProcessing:
 
 
 
+    def scaler_pipeline(self): 
+        '''
+        this creates the pipeline for encoding the cols 
+        '''
+        robust_feats= ['CNT_CHILDREN', 'DAYS_EMPLOYED']
+        standard_feats = ['AMT_INCOME_TOTAL', 'DAYS_BIRTH', 'CNT_FAM_MEMBERS'  ]
+        binary_feats = ['unemployed']  # to be created from DAYS_EMPLOYED 
+
+        # transform DAYS_EMPLOYED into new binary feature with feature_union 
+        identiy_transform= FunctionTransformer(func= None, feature_names_out='one-to-one')
+
+        def employment_condition(df): 
+            res= df['DAYS_EMPLOYED'].apply(lambda row: 1 if row > 0 else 0 ) # series is returned 
+            return res .values # want array to be returned, no issues with name indexing if names are removed 
+        def feat_name_fx(func_transformer_instance, cols_feature_names): 
+            return binary_feats # need to return list of feature names (same as number of cols returned in func)
+        new_transform = FunctionTransformer(func= employment_condition, feature_names_out=feat_name_fx )
 
 
-    # def scaler_pipeline(self): 
-    #     '''
-    #     this creates the pipeline for encoding the cols 
-    #     '''
+        featureunion= FeatureUnion( transformer_list= [
+            ('identity', identiy_transform), 
+            ('new_feat_unemployed', new_transform)
+        ], 
+        verbose_feature_names_out = False ) # want simpler names 
 
-    # def drops_pipeline(self): 
-    #     '''
-    #     this creates the pipeline for encoding the cols 
-    #     '''
+        # define the scalers (or use function transformer for my own scaler)
+        robust=RobustScaler()
+        standard= StandardScaler()
+        columntransformer = ColumnTransformer(transformers=[
+            ('robust_scaling', robust, robust_feats), 
+            ('standard_scaling', standard, standard_feats)
+        ], 
+        remainder='passthrough',
+        verbose_feature_names_out= False )
 
+        pipeline = Pipeline(steps=[
+            ('binary_transform', featureunion), # df with new feature for unemployed 
+            ('column_transforms', columntransformer), # robust and standard scaling with targeted cols 
+        ])
 
+        return pipeline
 
-
-    # def cc_applications_encoding(self, apps ) -> pd.DataFrame: 
-    #     '''
-    #     encoder pipeline
-    #     '''
-    #     # keep column names in memory
-    #     cols= apps.columns
-
-    #     # convert categroical features 
-    #     onehot= ['OCCUPATION_TYPE' ]
-    #     nominal = ['CODE_GENDER', 'NAME_INCOME_TYPE', 'NAME_FAMILY_STATUS',
-    #                'NAME_HOUSING_TYPE']
-    #     ordinal= ['FLAG_OWN_CAR' ,'FLAG_OWN_REALTY', 'NAME_EDUCATION_TYPE']
-    #     ordinal_values= [['N', 'Y'], 
-    #                      ['N', 'Y'], 
-    #                      ['Lower secondary','Secondary / secondary special',
-    #                       'Incomplete higher',  'Higher education', 'Academic degree'] 
-    #                       ]
+    def drops_pipeline(self): 
+        '''
+        this creates the pipeline for encoding the cols 
+        '''
         
-    #     # make pipeline for nominal features 
-    #     nominal_preprocessor= Pipeline(steps=[
-    #         ('missing_vals', SimpleImputer(fill_value= 'Missing', strategy= 'constant')), # for missing vals 
-    #         ('nominal_encoder', OrdinalEncoder()) # LabelEncoder()- feature transformations, read why this is done above ... 
-    #     ])
-
-    #     # make pipeline for ordinal features 
-    #     ordinal_preprocessor = OrdinalEncoder(categories=ordinal_values)
-
-    #     # make pipeline for onehotencoding features 
-    #     onehot_preprocessor = OneHotEncoder() # set_output already handled below 
-
-    #     # apply cols to right pipelines with columntransformer 
-    #     column_transformer= ColumnTransformer(transformers=[
-    #         ('ordinals', ordinal_preprocessor, ordinal), 
-    #         ('nominals', nominal_preprocessor, nominal), 
-    #         ('onehots', onehot_preprocessor, onehot)
-    #     ], 
-    #     remainder= 'passthrough', 
-    #     verbose_feature_names_out= False) # to get og column names (for purpose of getting back pd df )
-
-    #     # place columntransformer into overarching pipeline 
-    #         # remove the flag_mobil feature, do onehot encoding for occupation_type 
-    #     transformer_pipeline= Pipeline(steps=[
-    #         ('data_transform',  column_transformer) # data transformation step 
-    #     ])
-
-    #     # fit and predict 
-    #     transformer_pipeline.fit(apps )
-    #     res = transformer_pipeline.transform(apps)
-
-    #     # the cols are now rearranged because of the columntransformer
-    #     # reassign and rearrange the cols 
-    #     cols_= []
-    #     for c in cols: 
-    #         if c in onehot: 
-    #             cols_.extend(column_transformer.named_transformers_['onehots'].get_feature_names_out([c])) # associated one hot encoded cols
-    #         else: 
-    #             cols_.append(c)
-    #     res = pd.DataFrame(res, columns= column_transformer.get_feature_names_out()) # array  
-    #     res= res[cols_]
 
 
-    #     return res 
+    def encoder_pipeline_simple(self): 
+        '''
+        this creates the pipeline for encoding the cols 
+        - no one hot encoding 
+        '''
 
+        # convert categroical features 
+        nominal = ['CODE_GENDER', 'NAME_INCOME_TYPE', 'NAME_FAMILY_STATUS',
+                   'NAME_HOUSING_TYPE', 'OCCUPATION_TYPE']
+        ordinal= ['FLAG_OWN_CAR' ,'FLAG_OWN_REALTY', 'NAME_EDUCATION_TYPE']
+        ordinal_values= [['N', 'Y'], 
+                         ['N', 'Y'], 
+                         ['Lower secondary','Secondary / secondary special',
+                          'Incomplete higher',  'Higher education', 'Academic degree'] 
+                          ]
         
-    # def cc_applications_scaling(self, apps ) -> pd.DataFrame: 
-    #     '''
-    #     scaling pipeline 
-    #     '''
+        # make pipeline for nominal features 
+        nominal_preprocessor= Pipeline(steps=[
+            ('missing_vals', SimpleImputer(fill_value= 'Missing', strategy= 'constant')), # for missing vals 
+            ('nominal_encoder', OrdinalEncoder()) # LabelEncoder()- feature transformations, read why this is done above ... 
+        ])
+
+        # make pipeline for ordinal features 
+        ordinal_preprocessor = OrdinalEncoder(categories=ordinal_values)
 
 
+        # apply cols to right pipelines with columntransformer 
+        column_transformer= ColumnTransformer(transformers=[
+            ('ordinals', ordinal_preprocessor, ordinal), 
+            ('nominals', nominal_preprocessor, nominal), 
+        ], 
+        remainder= 'passthrough', 
+        verbose_feature_names_out= False) # to get og column names (for purpose of getting back pd df )
+
+       
+        return column_transformer
 
 
-# ------ 
-
-    # def cc_applications_processing(self, apps ) -> pd.DataFrame: 
-    #     '''
-    #     this will use sklearn Pipeline for ease of replication 
-    #         # ensure all have fit and transform/predict functions associated with them 
-    #     the Pipeline will also be saved for ease later on, allowing for more functionality 
-
-    #     note: label_encoder()
-    #     pipeline from sklearn doesn't work properly with LabelEncoder() because of the inputs taken from fit and transform. 
-    #     pipeline requires fit(x, y = None), whereas LabelEncoder().fit(x)
-    #     this is because labelencoder is meant to be used for y target feature, whereas ordinalencoder is supposed to be used with x input data
-    #     this means, I have to create a wrapper for the label encoder for this to work or i can just use ordinal encoder 
-
-
-    #     OCCUPATION_TYPE <<-- shoudl be 1 hot encoded ....
-    #     '''
-    #     # keep column names in memory
-    #     cols= apps.columns
-
-    #     # convert categroical features 
-    #     onehot= ['OCCUPATION_TYPE' ]
-    #     nominal = ['CODE_GENDER', 'NAME_INCOME_TYPE', 'NAME_FAMILY_STATUS',
-    #                'NAME_HOUSING_TYPE']
-    #     ordinal= ['FLAG_OWN_CAR' ,'FLAG_OWN_REALTY', 'NAME_EDUCATION_TYPE']
-    #     ordinal_values= [['N', 'Y'], 
-    #                      ['N', 'Y'], 
-    #                      ['Lower secondary','Secondary / secondary special',
-    #                       'Incomplete higher',  'Higher education', 'Academic degree'] 
-    #                       ]
-        
-    #     # make pipeline for nominal features 
-    #     nominal_preprocessor= Pipeline(steps=[
-    #         ('missing_vals', SimpleImputer(fill_value= 'Missing', strategy= 'constant')), # for missing vals 
-    #         ('nominal_encoder', OrdinalEncoder()) # LabelEncoder()- feature transformations, read why this is done above ... 
-    #     ])
-
-    #     # make pipeline for ordinal features 
-    #     ordinal_preprocessor = OrdinalEncoder(categories=ordinal_values)
-
-    #     # make pipeline for onehotencoding features 
-    #     onehot_preprocessor = OneHotEncoder() # set_output already handled below 
-
-    #     # apply cols to right pipelines with columntransformer 
-    #     column_transformer= ColumnTransformer(transformers=[
-    #         ('ordinals', ordinal_preprocessor, ordinal), 
-    #         ('nominals', nominal_preprocessor, nominal), 
-    #         ('onehots', onehot_preprocessor, onehot)
-    #     ], 
-    #     remainder= 'passthrough', 
-    #     verbose_feature_names_out= False) # to get og column names (for purpose of getting back pd df )
-
-    #     # place columntransformer into overarching pipeline 
-    #         # remove the flag_mobil feature, do onehot encoding for occupation_type 
-    #     transformer_pipeline= Pipeline(steps=[
-    #         ('data_transform',  column_transformer) # data transformation step 
-    #     ])
-
-    #     # fit and predict 
-    #     transformer_pipeline.fit(apps )
-    #     res = transformer_pipeline.transform(apps)
-
-    #     # the cols are now rearranged because of the columntransformer
-    #     # reassign and rearrange the cols 
-    #     cols_= []
-    #     for c in cols: 
-    #         if c in onehot: 
-    #             cols_.extend(column_transformer.named_transformers_['onehots'].get_feature_names_out([c])) # associated one hot encoded cols
-    #         else: 
-    #             cols_.append(c)
-    #     res = pd.DataFrame(res, columns= column_transformer.get_feature_names_out()) # array  
-    #     res= res[cols_]
-
-
-    #     # dop flag_mobill 
-    #     res.drop(['FLAG_MOBIL'], axis= 1, inplace= True)
-
-    #     # do scaling now
-         
-    #     return res
 
     
 
