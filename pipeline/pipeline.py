@@ -20,7 +20,7 @@ filenames.add_argument('--credit_record', default='dataset/credit_record.csv', h
 # processed data 
 filenames.add_argument('--customer_risk', default='dataset/customer_risk.csv', help= 'processed data ')
 filenames.add_argument('--applications_processed', default='dataset/applications_processed.csv', help='processed data ')
-
+filenames.add_argument('--application_record_pipeline', default= 'dataset/application_record_pipeline')
 
 
 args= parser.parse_args()
@@ -75,13 +75,17 @@ class Pipeline:
         credit_record = Utils.read_data(self.args.credit_record)
         customer_risk = dp.customer_risk_processing(credit_record)
         Utils.save_df(customer_risk, self.args.customer_risk)
+        print('customer credit risk processed from: ', self.args.credit_record, ' and saved to: ', self.args.customer_risk)
 
         # applications processed 
         application_record = Utils.read_data(self.args.application_record)
         applications_processed = dp.cc_applications_processing(application_record)
         Utils.save_df(applications_processed, self.args.applications_processed)
+        print('application record processed from: ', self.args.application_record, ' and saved to: ', self.args.applications_processed)
+
 
         # save the encoders for the predict step ... 
+        print('application_record pipeline saved to: ', self.args.application_record_pipeline)
 
     def building_model(self) : 
         '''

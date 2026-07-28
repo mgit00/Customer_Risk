@@ -9,6 +9,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.pipeline import FunctionTransformer, FeatureUnion
 
+from sklearn.base import BaseEstimator , TransformerMixin
 '''
 process the customer records dataset
 '''
@@ -74,21 +75,17 @@ class DataProcessing:
         
         encoder = self.encoder_pipeline()
         scaler= self.scaler_pipeline()
-        # drops= self.drops_pipeline()
+        drops= self.drops_pipeline()
 
         # nested pipelines
         pipeline = Pipeline(steps=[ 
             ('encoding', encoder),  # column transformer 
-            ('scaling', scaler), 
-            # ('drop', drops) 
+            ('scaling', scaler), # column transformer 
+            ('drop', drops) # class I designed myself with the fit, transform, get feature names -> column transformer 
         ])
         pipeline.set_output(transform='pandas')
 
         apps= pipeline.fit_transform(apps)
-
-
-        # # dop flag_mobill 
-        # apps.drop(['FLAG_MOBIL'], axis= 1, inplace= True)
         
          
         return apps
@@ -138,11 +135,11 @@ class DataProcessing:
 
 
 
-
     def scaler_pipeline(self): 
         '''
-        this creates the pipeline for encoding the cols 
+        this creates the pipeline for scaling the features 
         '''
+
         robust_feats= ['CNT_CHILDREN', 'DAYS_EMPLOYED']
         standard_feats = ['AMT_INCOME_TOTAL', 'DAYS_BIRTH', 'CNT_FAM_MEMBERS'  ]
         binary_feats = ['unemployed']  # to be created from DAYS_EMPLOYED 
@@ -184,14 +181,54 @@ class DataProcessing:
     def drops_pipeline(self): 
         '''
         this creates the pipeline for encoding the cols 
+        - I want practice making my own pipeline step, so I will make dropping the mobile flag as its own step in the pipeline
+
+
+        note that it is also possible to do this, but I wanted practice with making custom transformers 
+        # columns to drop
+        columns_to_drop = ['feature', 'feature_next']
+
+        # pipeline with ColumnTransformer to drop cols
+        processor = ColumnTransformer(transformers=[
+                ('column_drop', 'drop', columns_to_drop),
+            ], remainder= 'passthrough')
         '''
-        
+
+        cols_dropping= ['FLAG_MOBIL']
+
+        class CustomDrops(BaseEstimator, TransformerMixin): # self-created custom class 
+            def __init__(self, drop_cols): # no args... 
+                self.drop_cols= drop_cols 
+                self.feat_names= [] # feature_names_in 
+
+            def fit(self, X, y= None ): 
+                # learn the feature names 
+                self.feat_names= X.columns
+                return self # nothing to be learned  
+            def transform(self, X: pd.DataFrame, y= None ): 
+                X_new= X.drop(columns= self.drop_cols, axis= 1,  inplace= False ) # make a copy to not disturb the original 
+                self.feat_names= X_new.columns
+                return X_new
+            
+            def get_feature_names_out(self, input_feats_unassigned): # needed for set_output() functoin for pipeline 
+                return self.feat_names 
+            
+
+        columntransformer= ColumnTransformer(transformers=[
+            ('dropping_cols', CustomDrops(cols_dropping), cols_dropping)
+        ], 
+        remainder='passthrough', 
+        verbose_feature_names_out=False)
+
+
+        return columntransformer 
+
 
 
     def encoder_pipeline_simple(self): 
         '''
         this creates the pipeline for encoding the cols 
-        - no one hot encoding 
+        - no one hot encoding, this is done in the similar function above 
         '''
 
         # convert categroical features 

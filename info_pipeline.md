@@ -32,23 +32,21 @@ to create a credit risk classifier, the following has to be done:
         - calls and interacts with directory (file saving)
         - segments calls as needed, determined by argparse 
 - data_processing 
-    - processes the 
-    
+    - processes the data with pipeline from sklearn 
+    - uses: Pipeline, ColumnTransformer, FeatureUnion, FunctionTransformer, self-crated custom classes created for Pipeline using BaseEstimator/TransformerMixin
+        - gained experience nesting pipelines
+    - uses various encoding and scaling methods 
+        - specific methods chosen based on work in data_exploration.ipynb 
 - utils 
     - save files 
     - load files 
+    - pipeline creation used in testing data_processing.py 
 
 
 
 # workflow 
-- build out the pipeline 
-    - encoding
-        - split the pipelines with column transformer 
-        - encode the cols differently 
-        - done 
-    - scaling 
-        - scale differently based on needs 
-    - dropping 
+- save and load in the pipeline 
+
     
 ### notes: 
 - the reason why this is a classification problem rather than regression is that the regression model does not have enough samples to train on. it is possibly (?) easier to train on a classifyer rather than a regressor. 
