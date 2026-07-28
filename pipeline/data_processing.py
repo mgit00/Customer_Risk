@@ -43,16 +43,18 @@ class DataProcessing:
         # make ID feature from index 
         creditworthiness.reset_index(drop= False, inplace= True )
 
-        # discreditize into bins 
-        score_mean= creditworthiness.summed.where(creditworthiness.summed > 0 ).mean()
-        score_std= creditworthiness.summed.where(creditworthiness.summed > 0 ).std()
-            # pd.cut is right selctive ( , ] ranges with right= True setting 
-        ranges= (-float('inf'),0, score_mean- score_std, score_mean, score_mean + score_std, float('inf'))
-        range_titles= range(0, 5) # range_titles= ('none', 'low', 'medium_low', 'medium_high', 'high')
-        creditworthiness['risk_level']= pd.cut(creditworthiness['summed'], bins=ranges, labels=range_titles, right= True)
+        # # discreditize into bins 
+        # score_mean= creditworthiness.summed.where(creditworthiness.summed > 0 ).mean()
+        # score_std= creditworthiness.summed.where(creditworthiness.summed > 0 ).std()
+        #     # pd.cut is right selctive ( , ] ranges with right= True setting 
+        # ranges= (-float('inf'),0, score_mean- score_std, score_mean, score_mean + score_std, float('inf'))
+        # range_titles= range(0, 5) # range_titles= ('none', 'low', 'medium_low', 'medium_high', 'high')
+        # creditworthiness['risk_level']= pd.cut(creditworthiness['summed'], bins=ranges, labels=range_titles, right= True)
         
-        # drop unneded cols 
-        creditworthiness.drop(labels=['summed'], axis = 1, inplace=True )
+        # # drop unneded cols 
+        # creditworthiness.drop(labels=['summed'], axis = 1, inplace=True )
+
+        creditworthiness.rename( {'summed': 'risk_level'}, axis = 1, inplace= True )
 
         return creditworthiness
 

@@ -1,6 +1,6 @@
 import torch 
 
-from torch.nn import CrossEntropyLoss # MSELoss for continuous loss 
+from torch.nn import CrossEntropyLoss, MSELoss # MSELoss for continuous loss 
 from torch.optim import Adam 
 
 from models import FNN 
@@ -35,7 +35,7 @@ class Train:
         # layer sizes 
         input_size= 35 # next(iter(train_loader))...... 
         hidden_sizes = 20 
-        output_size = 5 # number of classes in risk_level 
+        output_size = 1 # number of classes in risk_level 
 
 
         # get the model, optimizer, and loss function 
@@ -43,7 +43,7 @@ class Train:
         # place model onto gpu 
         model = model.to(self.args.device)
 
-        loss= CrossEntropyLoss() # combines softmax and NLL 
+        loss= MSELoss() # CrossEntropyLoss() # combines softmax and NLL 
         optimizer= Adam(model.parameters(), lr= self.args.lr )
 
         print('model is: ', model)
@@ -68,7 +68,7 @@ class Train:
                 y= y.to(self.args.device)
 
 
-                pred  = model(x)
+                pred  = model(x).flatten()
                 batch_loss = loss(pred, y) # y is dtype long for CE Loss 
 
                 epoch_loss += batch_loss.item()
@@ -84,7 +84,7 @@ class Train:
                 x= x.to(self.args.device)
                 y= y.to(self.args.device)
 
-                pred = model(x)
+                pred = model(x).flatten()
                 new = torch.argmax(pred, axis= -1 )
                
                 batch_loss = loss(pred, y)
