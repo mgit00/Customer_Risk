@@ -1,7 +1,8 @@
 # use static_method for utils class 
 import pandas as pd 
 from sklearn.pipeline import Pipeline 
-from sklearn.impute import SimpleImputer
+
+import cloudpickle 
 
 class Utils: 
     '''
@@ -20,6 +21,22 @@ class Utils:
     def pipeline_creator(steps_list:list): 
         pipeline= Pipeline(steps= steps_list )
         pipeline.set_output(transform='pandas')
+
+        return pipeline 
+    
+    @staticmethod
+    def save_pipeline(pipeline, location ): 
+        '''
+        need to use cloudpickle to save since there are custom methods/classes and also lambda is used
+        cloudpickle is more thourough in saving than pickle 
+        '''
+        with open(location, 'wb') as filename: 
+            cloudpickle.dump(pipeline, filename)
+
+    @staticmethod 
+    def load_pipeline(location): 
+        with open(location, 'rb') as filename: 
+            pipeline = cloudpickle.load(filename)
 
         return pipeline 
 

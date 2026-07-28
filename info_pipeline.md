@@ -45,7 +45,7 @@ to create a credit risk classifier, the following has to be done:
 
 
 # workflow 
-- save and load in the pipeline 
+- load in the pipeline 
 
     
 ### notes: 

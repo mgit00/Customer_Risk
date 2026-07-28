@@ -21,6 +21,7 @@ class DataProcessing:
     '''
     def __init__(self, args): 
         self.args= args 
+        self.cc_applications_pipeline= None # will be updated below when called 
 
     def customer_risk_processing(self, records ): 
         '''
@@ -87,6 +88,7 @@ class DataProcessing:
 
         apps= pipeline.fit_transform(apps)
         
+        self.cc_applications_pipeline = pipeline
          
         return apps
     

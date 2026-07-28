@@ -20,7 +20,7 @@ filenames.add_argument('--credit_record', default='dataset/credit_record.csv', h
 # processed data 
 filenames.add_argument('--customer_risk', default='dataset/customer_risk.csv', help= 'processed data ')
 filenames.add_argument('--applications_processed', default='dataset/applications_processed.csv', help='processed data ')
-filenames.add_argument('--application_record_pipeline', default= 'dataset/application_record_pipeline')
+filenames.add_argument('--application_record_pipeline', default= 'pipeline/application_record_pipeline.pkl', help= 'application pipeline for processing')
 
 
 args= parser.parse_args()
@@ -84,7 +84,9 @@ class Pipeline:
         print('application record processed from: ', self.args.application_record, ' and saved to: ', self.args.applications_processed)
 
 
-        # save the encoders for the predict step ... 
+        # save the pipeline for the predict step and for ease of use 
+        apps_pipeline= dp.cc_applications_pipeline
+        Utils.save_pipeline(pipeline=apps_pipeline, location= self.args.application_record_pipeline)
         print('application_record pipeline saved to: ', self.args.application_record_pipeline)
 
     def building_model(self) : 
