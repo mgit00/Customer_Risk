@@ -26,8 +26,9 @@ to create a credit risk classifier, the following has to be done:
     - customer_risk.csv= unique customer credit risk/creditworthiness rating 
 
 ## pipeline 
-- pipeline 
+- argument_parser 
     - argparse 
+- driver
     - calls each of the files needed 
         - calls and interacts with directory (file saving)
         - segments calls as needed, determined by argparse 
@@ -55,7 +56,7 @@ to create a credit risk classifier, the following has to be done:
 - models.py 
     - 1 model class for each model 
 
-- data_loading.py 
+- model_helper.py 
     - load in the data and batch/process/ect as needed 
 
 
@@ -77,6 +78,17 @@ the requirements are:
 - load in the pipeline 
 - drop ID column for training 
 - drop Id column for prediction 
+---
+- argument parser 
+- driver 
+- model helper 
+    - load data  
+    - training 
+        - calls train.py for training loop 
+        - plots training loss 
+
+
+- build out taking in trained model and continue training 
 
     
 ### notes: 

@@ -1,61 +1,30 @@
-import argparse 
- 
-parser= argparse.ArgumentParser(description='model creation and pipeline')
-
-'''
-can run through full pipeline, calls all functions 
-
-if you call steps like data_processing, then only that function will be executed 
-'''
-parser.add_argument('--mode', type= str, 
-                    choices=['predict', 'build_model', 'data_processing', 'full'], 
-                    required=True, 
-                    help= 'pick the entire pipeline or section of the pipeline to do'  )
-
-
-filenames= parser.add_argument_group(title= 'filenames and paths for datasets' )
-# original data 
-filenames.add_argument('--application_record', default='dataset/application_record.csv', help='original data ')
-filenames.add_argument('--credit_record', default='dataset/credit_record.csv', help='original data ')
-# processed data 
-filenames.add_argument('--customer_risk', default='dataset/customer_risk.csv', help= 'processed data ')
-filenames.add_argument('--applications_processed', default='dataset/applications_processed.csv', help='processed data ')
-filenames.add_argument('--application_record_pipeline', default= 'pipeline/application_record_pipeline.pkl', help= 'application pipeline for processing')
-filenames.add_argument('--data', default='dataset/data.csv', help='the customer_risk and applications_processed joined dataset')
-
-model= parser.add_argument_group(title= 'args for model')
-model.add_argument('--model_type', default= ['fnn'], choices=['fnn', 'kmeans_fnn', 'autoencoder_kmeans_knn'], required=False , 
-                   help= 'pick the model to work on')
-
-
-args= parser.parse_args()
-
-print(args)
-
 
 from data_processing import DataProcessing 
 from utils import Utils 
 
+from model_helper import ModelHelper
 
-class Pipeline: 
+
+class Driver: 
     '''
     interface which interacts with the directory 
+    this keeps interactions with directory easy to follow
     '''
     def __init__(self, args): 
         self.args= args 
 
+    def do_mode(self): 
         # full pipeline 
-        if args.mode == 'full': 
+        if self.args.mode == 'full': 
             self.process_data()
             self.building_model()
             # .... 
 
-
         # sections of the pipeline
-        if args.mode == 'data_processing': 
+        if self.args.mode == 'data_processing': 
             self.process_data()
         
-        if args.mode == 'build_model': 
+        if self.args.mode == 'build_model': 
             self.building_model()
 
     def process_data(self): 
@@ -116,10 +85,25 @@ class Pipeline:
         - plotting 
         
         loading and saving model will be done here in pipeline (keeps interactions with directory easy to follow)
-        plots will be saved here too 
+        plots will be saved here too, since this is used to interact with the directory 
         '''
 
-        # layout how the code structure for the model building should be in .md file 
+        modelhelper= ModelHelper(self.args )
+
+        # read data from directory based on args 
+        data = Utils.read_data(self.args.data)
+        train_test_dataloaders= modelhelper.load_data(data)
+
+        # check if there is an existing model which should be trained upon .... 
+
+        # train model 
+        model_state= modelhelper.training(train_test_dataloaders)
+        
+        # save model 
+        # plot, and save plot 
+
+
+        # layout how the code structure for the model building should be in .md file ... 
         pass 
 
     def predicting(self): 
@@ -136,16 +120,6 @@ class Pipeline:
         
 
 
-
-
-
-
-        
-
-
-
-
-pipeline_class= Pipeline(args)
 
 
 
