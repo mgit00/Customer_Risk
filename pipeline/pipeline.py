@@ -23,6 +23,10 @@ filenames.add_argument('--applications_processed', default='dataset/applications
 filenames.add_argument('--application_record_pipeline', default= 'pipeline/application_record_pipeline.pkl', help= 'application pipeline for processing')
 filenames.add_argument('--data', default='dataset/data.csv', help='the customer_risk and applications_processed joined dataset')
 
+model= parser.add_argument_group(title= 'args for model')
+model.add_argument('--model_type', default= ['fnn'], choices=['fnn', 'kmeans_fnn', 'autoencoder_kmeans_knn'], required=False , 
+                   help= 'pick the model to work on')
+
 
 args= parser.parse_args()
 
@@ -94,7 +98,7 @@ class Pipeline:
         data= dp.join_data(customer_risk, applications_processed)
         Utils.save_df(data, self.args.data)
         print('complete joined data saved to: ', self.args.data)
-        
+
 
 
 
@@ -114,6 +118,8 @@ class Pipeline:
         loading and saving model will be done here in pipeline (keeps interactions with directory easy to follow)
         plots will be saved here too 
         '''
+
+        # layout how the code structure for the model building should be in .md file 
         pass 
 
     def predicting(self): 

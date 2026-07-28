@@ -43,8 +43,37 @@ to create a credit risk classifier, the following has to be done:
     - pipeline creation used in testing data_processing.py 
 
 
+---------- 
+- driver.py 
+    - calls: 
+        - data_loading 
+        - training 
+        - models 
+        - model saving 
+        - plotting 
 
-# workflow 
+- models.py 
+    - 1 model class for each model 
+
+- data_loading.py 
+    - load in the data and batch/process/ect as needed 
+
+
+### workflow for model building 
+there should be 3 models: 
+- knn 
+- kmeans + knn 
+- autoencoders + knn 
+
+the requirements are: 
+- each model requires its own model class in models.py 
+- train.py should call 1 of each model as needed 
+    - as a result, the differentiation between the models doesn't have to be done in pipeline.py; but instead can be done in training.py 
+    - or for more flexibility, it can be differentiated early in pipeline.py but integrated well later on st. the calls in pipeline.py don't have a large effect 
+
+
+
+# TBD: workflow 
 - load in the pipeline 
 - drop ID column for training 
 - drop Id column for prediction 
