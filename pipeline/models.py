@@ -10,7 +10,7 @@ class FNN(nn.Module):
         self.layers= nn.Sequential()
 
         self.layers.append(nn.Linear(input_size, hidden_sizes))
-        self.layers.append(nn.LeakyReLU())
+        self.layers.append(nn.ReLU())
         self.layers.append(nn.Linear(hidden_sizes, output_size))
 
         print('FNN model is created with layer sizes: ', input_size, hidden_sizes, output_size)

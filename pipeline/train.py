@@ -34,12 +34,15 @@ class Train:
 
         # layer sizes 
         input_size= 35 # next(iter(train_loader))...... 
-        hidden_sizes = 64 
+        hidden_sizes = 24 
         output_size = 5 # number of classes in risk_level 
 
 
         # get the model, optimizer, and loss function 
         model = FNN(self.args, input_size, hidden_sizes, output_size)
+        # place model onto gpu 
+        model = model.to(self.args.device)
+
         loss= CrossEntropyLoss() # combines softmax and NLL 
         optimizer= Adam(model.parameters(), lr= self.args.lr )
 
@@ -50,11 +53,11 @@ class Train:
               {param.dtype for param in model.parameters()}) # pytorch always initalized to float32 
         print('the dtypes for the target data are: ', next(iter(train_loader))[1].dtype) # dtype long for CELoss 
 
-        # place model onto gpu 
-        model.to(self.args.device)
+        
 
 
         for epoch in range(self.args.epochs): 
+            print('epoch', epoch)
             epoch_loss = 0 
             epoch_loss_test = 0 
 
