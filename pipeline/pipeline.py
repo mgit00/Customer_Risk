@@ -21,6 +21,7 @@ filenames.add_argument('--credit_record', default='dataset/credit_record.csv', h
 filenames.add_argument('--customer_risk', default='dataset/customer_risk.csv', help= 'processed data ')
 filenames.add_argument('--applications_processed', default='dataset/applications_processed.csv', help='processed data ')
 filenames.add_argument('--application_record_pipeline', default= 'pipeline/application_record_pipeline.pkl', help= 'application pipeline for processing')
+filenames.add_argument('--data', default='dataset/data.csv', help='the customer_risk and applications_processed joined dataset')
 
 
 args= parser.parse_args()
@@ -88,6 +89,14 @@ class Pipeline:
         apps_pipeline= dp.cc_applications_pipeline
         Utils.save_pipeline(pipeline=apps_pipeline, location= self.args.application_record_pipeline)
         print('application_record pipeline saved to: ', self.args.application_record_pipeline)
+
+        # merge the customer_risk and applications data so that it can be fed to the model 
+        data= dp.join_data(customer_risk, applications_processed)
+        Utils.save_df(data, self.args.data)
+        print('complete joined data saved to: ', self.args.data)
+        
+
+
 
     def building_model(self) : 
         '''

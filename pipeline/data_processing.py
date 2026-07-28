@@ -265,6 +265,16 @@ class DataProcessing:
         return column_transformer
 
 
+    def join_data(self, customer_risk, applications) -> pd.DataFrame: 
+        ''' 
+        merge the data based on id 
+        - note that mergeing is for columns and join is for indecies 
+        '''
+        res = customer_risk.merge(applications, on='ID', how= 'inner') 
+        # drop the ID column later on in the process 
+
+        return res 
+
 
     
 

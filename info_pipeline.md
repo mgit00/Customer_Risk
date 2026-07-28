@@ -46,6 +46,8 @@ to create a credit risk classifier, the following has to be done:
 
 # workflow 
 - load in the pipeline 
+- drop ID column for training 
+- drop Id column for prediction 
 
     
 ### notes: 
