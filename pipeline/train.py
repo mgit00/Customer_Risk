@@ -34,7 +34,7 @@ class Train:
 
         # layer sizes 
         input_size= 35 # next(iter(train_loader))...... 
-        hidden_sizes = 24 
+        hidden_sizes = 20 
         output_size = 5 # number of classes in risk_level 
 
 
@@ -85,6 +85,8 @@ class Train:
                 y= y.to(self.args.device)
 
                 pred = model(x)
+                new = torch.argmax(pred, axis= -1 )
+               
                 batch_loss = loss(pred, y)
 
                 epoch_loss_test+= batch_loss.item()

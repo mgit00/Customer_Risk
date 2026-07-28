@@ -27,7 +27,7 @@ model= parser.add_argument_group(title= 'args for model')
 model.add_argument('--model_type', default= ['fnn'], choices=['fnn', 'kmeans_fnn', 'autoencoder_kmeans_knn'], required=False , 
                    help= 'pick the model to work on')
 # data to read in is: --data 
-model.add_argument('--batch_size', default = 1, type = int, help='smaller batches mean less memory, but noisy')
+model.add_argument('--batch_size', default = 100, type = int, help='smaller batches mean less memory, but noisy')
 # --device arg created in train.training_loop 
 model.add_argument('--lr', default = .001, type = float)
 model.add_argument('--epochs', default = 3, type= int )
