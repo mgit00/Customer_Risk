@@ -3,7 +3,8 @@ import torch
 from torch.nn import CrossEntropyLoss # MSELoss for continuous loss 
 from torch.optim import Adam 
 
-from models import FNN 
+from models import SLP, FNN, KMeansFNN, AutoencoderKMeansFNN 
+
 class Train: 
     '''
     implements training loop 
@@ -12,6 +13,25 @@ class Train:
     '''
     def __init__(self, args): 
         self.args= args 
+
+    def get_model(self, input_size, output_size): 
+        ''' 
+        this function gets the right model
+        selected from the args line 
+        '''
+        model_type= self.args.model_type
+        if model_type == 'slp': 
+            model = SLP(input_size, output_size)
+        elif model_type == 'fnn': 
+            model = FNN(input_size, self.args.hidden_sizes, output_size)
+        elif model_type == 'kmeans_fnn': 
+            model= KMeansFNN(self.args.k_value, input_size, self.args.hidden_sizes, output_size)
+        elif model_type== 'autoencoder_kmeans_fnn': 
+            model = AutoencoderKMeansFNN(input_size, self.args.hidden_sizes, output_size)
+
+        return model 
+    
+
 
     def training_loop(self, train_test_dataloaders):
         '''
@@ -34,20 +54,20 @@ class Train:
 
         # layer sizes 
         input_size= 35 # next(iter(train_loader))...... 
-        hidden_sizes = 20 
+        hidden_sizes = self.args.hidden_sizes  
         output_size = 5 # number of classes in risk_level 
 
 
         # get the model, optimizer, and loss function 
-        model = FNN(self.args, input_size, hidden_sizes, output_size)
+        model = self.get_model(input_size, output_size) # hidden size from args  # FNN(self.args, input_size, hidden_sizes, output_size)
+        print('model is: ', model)
         # place model onto gpu 
         model = model.to(self.args.device)
 
         loss= CrossEntropyLoss() # combines softmax and NLL 
         optimizer= Adam(model.parameters(), lr= self.args.lr )
 
-        print('model is: ', model)
-
+        
         print('the dtypes for x data and model are: ', 
               [next(iter(train_loader))[0].dtype] ,
               {param.dtype for param in model.parameters()}) # pytorch always initalized to float32 

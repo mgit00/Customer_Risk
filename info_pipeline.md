@@ -90,6 +90,15 @@ the requirements are:
 
 - build out taking in trained model and continue training 
 
+
+---- 
+how to deal with kmeans algorithm? 
+the general nn workflow is done well 
+inorder to deal with kmeans, a k has to be chosen first 
+    - to choose a k, the elbow curve should be plotted first 
+
+- create a seperate pipeline to deal with keamns algorithm 
+
     
 ### notes: 
 - the reason why this is a classification problem rather than regression is that the regression model does not have enough samples to train on. it is possibly (?) easier to train on a classifyer rather than a regressor. 

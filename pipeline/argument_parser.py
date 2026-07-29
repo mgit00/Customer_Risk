@@ -5,6 +5,7 @@ parser= argparse.ArgumentParser(description='model creation and pipeline')
 '''
 can run through full pipeline, calls all functions 
 
+
 if you call steps like data_processing, then only that function will be executed 
 '''
 parser.add_argument('--mode', type= str, 
@@ -24,18 +25,27 @@ filenames.add_argument('--application_record_pipeline', default= 'pipeline/appli
 filenames.add_argument('--data', default='dataset/data.csv', help='the customer_risk and applications_processed joined dataset')
 
 model= parser.add_argument_group(title= 'args for model')
-model.add_argument('--model_type', default= ['fnn'], choices=['fnn', 'kmeans_fnn', 'autoencoder_kmeans_knn'], required=False , 
-                   help= 'pick the model to work on')
+model.add_argument('--model_type', default= ['fnn'], 
+                   choices=['slp', 'fnn', 'kmeans_fnn', 'autoencoder_kmeans_knn'],
+                   required=False , help= 'pick the model to work on')
 # data to read in is: --data 
-model.add_argument('--batch_size', default = 100, type = int, help='smaller batches mean less memory, but noisy')
+model.add_argument('--batch_size', default = 1000, type = int, help='smaller batches mean less memory, but noisy')
 # --device arg created in train.training_loop 
-model.add_argument('--lr', default = .001, type = float)
-model.add_argument('--epochs', default = 3, type= int )
+model.add_argument('--lr', default = .0001, type = float)
+model.add_argument('--epochs', default = 5, type= int )
+model.add_argument('--hidden_sizes', nargs= '+', type= int, default= [30, 20], help= 'list of hidden sizes for the hidden layers')
+model.add_argument('--k_value', default = 7, type= int, help= 'k value to determine the number of clusters for the KMeans model')
+
+clustering = parser.add_argument_group(title='args to deal with various k for kmeans(clustering)')
+clustering.add_argument('--kmeans_only',  action='store_true', help = 'kmeans_only means that the kmeans graph for multiple k values is generated. this allows to see the elbow curve, and pick k ')
+
+
 
 args= parser.parse_args()
 
 print(args)
 
+raise Exception('here')
 
 
 #---- 

@@ -38,7 +38,7 @@ class ModelHelper:
         y= torch.tensor(y, dtype= torch.long) # crossentropyloss expects dtype long
 
         # train test split 
-        xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size =.15, shuffle= True, random_state = 1 )
+        xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size =.30, shuffle= True, random_state = 1 )
             # random state makes it replicable 
             # batching not done here, done in dataloader 
             # shuffle rows 
