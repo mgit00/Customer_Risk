@@ -1,6 +1,6 @@
 import torch 
 
-from torch.nn import CrossEntropyLoss # MSELoss for continuous loss 
+from torch.nn import CrossEntropyLoss , MSELoss # for continuous loss 
 from torch.optim import Adam 
 
 from models import SLP, FNN, KMeansFNN, AutoencoderKMeansFNN 
@@ -55,7 +55,10 @@ class Train:
         # layer sizes 
         input_size= 35 # next(iter(train_loader))...... 
         hidden_sizes = self.args.hidden_sizes  
-        output_size = 5 # number of classes in risk_level 
+        if self.args.target_mode == 'classification': 
+            output_size = 5 # number of classes in risk_level 
+        else: 
+            output_size = 1 
 
 
         # get the model, optimizer, and loss function 
@@ -64,7 +67,11 @@ class Train:
         # place model onto gpu 
         model = model.to(self.args.device)
 
-        loss= CrossEntropyLoss() # combines softmax and NLL 
+        if self.args.target_mode == 'classification': 
+            loss= CrossEntropyLoss() # combines softmax and NLL 
+        else: 
+            loss= MSELoss()
+
         optimizer= Adam(model.parameters(), lr= self.args.lr )
 
         
@@ -77,7 +84,6 @@ class Train:
 
 
         for epoch in range(self.args.epochs): 
-            print('epoch', epoch)
             epoch_loss = 0 
             epoch_loss_test = 0 
 
@@ -89,6 +95,9 @@ class Train:
 
 
                 pred  = model(x)
+                if self.args.target_mode == 'regression': 
+                    pred= pred.flatten()# for correct shape MSELoss 
+
                 batch_loss = loss(pred, y) # y is dtype long for CE Loss 
 
                 epoch_loss += batch_loss.item()
@@ -105,6 +114,9 @@ class Train:
                 y= y.to(self.args.device)
 
                 pred = model(x)
+                if self.args.target_mode == 'regression': 
+                    pred= pred.flatten()# for correct shape MSELoss 
+                    
                 new = torch.argmax(pred, axis= -1 )
                
                 batch_loss = loss(pred, y)
@@ -113,7 +125,7 @@ class Train:
 
 
             print('epoch', epoch, 'losses for train and test: ', epoch_loss, epoch_loss_test)
-
+        
         # raise Exception('here')
         return None 
         

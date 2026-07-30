@@ -35,7 +35,11 @@ class ModelHelper:
 
         # convert to torch
         x= torch.tensor(x.values, dtype= torch.float32 ) # note pytorch always intialized model to dtype float32 
-        y= torch.tensor(y, dtype= torch.long) # crossentropyloss expects dtype long
+        if self.args.target_mode == 'classification': 
+            y= torch.tensor(y, dtype= torch.long) # crossentropyloss expects dtype long
+        else : 
+            y= torch.tensor(y, dtype= torch.float32)
+
 
         # train test split 
         xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size =.30, shuffle= True, random_state = 1 )
