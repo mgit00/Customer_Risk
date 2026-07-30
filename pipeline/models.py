@@ -1,5 +1,17 @@
 import torch.nn as nn 
 
+from sklearn.cluster import KMeans
+class KMeansModel: 
+    def __init__(self, kvalue): 
+        self.model= KMeans(n_clusters= kvalue, random_state= 1 ) # random state for reproducability 
+    
+    def forward(self, data):
+        cluster_labels= self.model.fit_predict(data)
+        return cluster_labels
+
+
+    
+
 class SLP(nn.Module): 
     '''
     single layer perceptron 

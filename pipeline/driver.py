@@ -3,7 +3,8 @@ from data_processing import DataProcessing
 from utils import Utils 
 
 from model_helper import ModelHelper
-
+from clustering import Clustering
+from plotting import Plotting
 
 class Driver: 
     '''
@@ -14,19 +15,24 @@ class Driver:
         self.args= args 
 
     def do_mode(self): 
+
         # full pipeline 
         if self.args.mode == 'full': 
             self.process_data()
             self.building_model()
             # .... 
+        
+        elif self.args.mode == 'kmeans_only': 
+            # self.process_data()
+            self.kmeans()
 
         # sections of the pipeline
-        if self.args.mode == 'data_processing': 
+        elif self.args.mode == 'data_processing': 
             self.process_data()
         
-        if self.args.mode == 'build_model': 
+        elif self.args.mode == 'build_model': 
             self.building_model()
-
+    
     def process_data(self): 
         '''
         this will process application_record.csv and credit_record.csv
@@ -68,6 +74,25 @@ class Driver:
         Utils.save_df(data, self.args.data)
         print('complete joined data saved to: ', self.args.data)
 
+
+    def kmeans(self): 
+        '''
+        kmeans_only was called
+        the processed data is guanteed to exist 
+
+        if kmeans_only, then the mode doesn't matter at all 
+            there should be processed data in the directory 
+            just produce the kmeans clustering elbow graph 
+        '''
+        data = Utils.read_data(self.args.data)
+
+        # do kmeans clustering models for different k 
+        clustering= Clustering(self.args)
+        intertias= clustering.get_intertias(data)
+
+        # plot the results 
+        plotting= Plotting(self.args)
+        plotting.kmeans_elbow_curve(intertias)
 
 
 
