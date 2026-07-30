@@ -12,7 +12,7 @@ class Plotting:
 
         plt.plot(x, y)
         plt.title('Elbow Curve for KMeans')
-        plt.xticks(x)
+        plt.xticks(x, rotation= 45)
         plt.savefig(self.args.elbow_curve_for_kmeans)
         plt.show ()
 
