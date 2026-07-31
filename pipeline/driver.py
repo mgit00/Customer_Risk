@@ -115,11 +115,10 @@ class Driver:
 
         modelhelper= ModelHelper(self.args, Utils.load_model(self.args.loaded_model) if self.args.loaded_model else None ) # check if there is an existing model which should be trained upon 
 
-        # read data from directory based on args 
+        # read data from directory, based on args 
         data = Utils.read_data(self.args.data)
         train_test_dataloaders= modelhelper.load_data(data)
-
-        
+    
         # train model 
         model_state= modelhelper.training(train_test_dataloaders)
         
