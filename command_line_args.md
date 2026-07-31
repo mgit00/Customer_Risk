@@ -29,3 +29,5 @@ python pipeline/argument_parser.py --mode build_model --epochs 10 --saved_model 
 - loading in 
     - add distances to centroids to data 
     - pass through the nn model 
+
+figure out how to integrate in the kmeans model, in model_helper??
