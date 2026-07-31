@@ -26,7 +26,7 @@ filenames.add_argument('--data', default='dataset/data.csv', help='the customer_
 filenames.add_argument('--elbow_curve_for_kmeans', default='images/elbow_curve_for_kmeans.png', help= 'location to save the elbow curve')
 filenames.add_argument('--loaded_model', nargs ='?', const= 'model_info/saved_model.pt', help = 'filename for loading in model')
 filenames.add_argument('--saved_model', default= 'model_info/saved_model.pt', help = 'filename for saving model')
-filenames.add_argument('--nn_plot', default= 'images/nn_loss', dest= 'nn_plot_file', help='base name for the nn plot, will be appended below...')
+filenames.add_argument('--nn_plot', default= 'images/nn_plots', dest= 'nn_plot_file', help='base name for the nn plot, will be appended below...')
 
 dataprocessing= parser.add_argument_group(title = 'args for mode data_processing')
 dataprocessing.add_argument('--target_mode', choices= ['classification', 'regression'], default = 'classification', help= 'decides if the dataset created will have credit risk as a continuous feature')
@@ -52,7 +52,7 @@ clustering= parser.add_argument('--k_values' , nargs= 2, default = [2, 5], type=
 
 args= parser.parse_args()
 # dynamic changes to filename based on args that are passed in 
-args.nn_plot_file = args.nn_plot_file + '_' + args.model_type + '_' + args.target_mode + '.png'
+args.nn_plot_file = args.nn_plot_file + '/' + args.target_mode + '/'+  args.model_type + '/' # + '.png' <- done at end 
 
 
 print(args)

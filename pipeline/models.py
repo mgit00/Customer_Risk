@@ -57,7 +57,16 @@ class FNN(nn.Module):
 
 
 class KMeansFNN(nn.Module): 
-    def __init__(self): 
+    '''
+    model which takes the kmeans_classifications and adds it to the data
+    then trains the fnn model
+    '''
+    def __init__(self, k_value, input_size, hidden_sizes, output_size): 
+        super().__init__()
+
+        self.fnn= FNN(input_size, hidden_sizes, output_size)
+
+        
         pass 
 
 class AutoencoderKMeansFNN(nn.Module): 

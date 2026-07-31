@@ -32,6 +32,8 @@ class ModelHelper:
         - k_value 
         '''
         matches= {}
+        if self.args.target_mode != self.loaded_model['args'].target_mode:
+            matches['target_mode'] = False 
         if self.args.model_type != self.loaded_model['args'].model_type: 
             matches['model_type'] = False 
         if self.args.hidden_sizes != self.loaded_model['args'].hidden_sizes:
@@ -52,6 +54,7 @@ class ModelHelper:
         
         this function shouldn't change based on the model
         however, it should change based on the specification of the args
+
         '''
         # drop column of IDs 
         data= dataset.drop(columns= ['ID'], axis = 1 , inplace= False ) # create copy 
@@ -65,7 +68,7 @@ class ModelHelper:
         if self.args.target_mode == 'classification': 
             y= torch.tensor(y, dtype= torch.long) # crossentropyloss expects dtype long
         else : 
-            y= torch.tensor(y, dtype= torch.float32)
+            y= torch.tensor(y, dtype= torch.float32) # crossentropyloss expects dtype float32
 
 
         # train test split 
@@ -96,9 +99,12 @@ class ModelHelper:
         the model state will be passed back to driver so that it can be saved 
         '''
 
-        train = Train(self.args, self.loaded_model)
-        model_state = train.training_loop(train_test_dataloaders) # can specify existimg model to train from if wanted with optional argument... 
+        train = Train(self.args, self.loaded_model) # model given is guaranteed to be valid, checked already  
 
+        if self.args.target_mode =='classification': 
+            model_state = train.training_loop_classification(train_test_dataloaders) # can specify existimg model to train from if wanted with optional argument... 
+        else: # regression 
+            model_state = train.training_loop_regression(train_test_dataloaders)
 
         return model_state 
 
