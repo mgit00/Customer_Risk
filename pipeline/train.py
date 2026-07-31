@@ -2,6 +2,8 @@ import torch
 
 from torch.nn import CrossEntropyLoss , MSELoss # for continuous loss 
 from torch.optim import Adam 
+# from torcheval.metrics import MulticlassAccuracy, MulticlassF1Score
+from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score
 
 from models import SLP, FNN, KMeansFNN, AutoencoderKMeansFNN 
 
@@ -33,6 +35,19 @@ class Train:
 
         return model 
     
+    def initialize_classification_metrics(self): 
+        '''
+        initialize classification metrics 
+        '''
+        self.f1_metric = MulticlassF1Score(num_classes= 5)
+        self.f1_metric_test= MulticlassF1Score(num_classes= 5)
+        self.accuracy_metric = MulticlassAccuracy(num_classes= 5 )
+        self.accuracy_metric_test = MulticlassAccuracy(num_classes= 5 )
+        
+        self.f1_metric.to(self.args.device)
+        self.f1_metric_test.to(self.args.device)
+        self.accuracy_metric.to(self.args.device)
+        self.accuracy_metric_test.to(self.args.device)
 
     def training_loop_classification(self, train_test_dataloaders):
         '''
@@ -66,15 +81,20 @@ class Train:
         model = model.to(self.args.device)
 
         loss= CrossEntropyLoss() # combines softmax and NLL 
-        
-
+    
         optimizer= Adam(model.parameters(), lr= self.args.lr )
 
+
+        self.initialize_classification_metrics()
 
         # tracking loss, epoch, metrics
         train_loss= []
         test_loss=[]
         curr_epoch= 0 
+        train_accuracy = [] # self.accuracy_metric
+        test_accuracy=[] # self.accuracy_metric_test
+        train_f1= []# self.accuracy_f1
+        test_f1=[] # self.accuracy_f1_test
 
 
 
@@ -82,9 +102,16 @@ class Train:
         if self.loaded_model: 
             model.load_state_dict( self.loaded_model['model_state_dict'])
             optimizer.load_state_dict(self.loaded_model['optimizer_state_dict'])
+            
             train_loss=self.loaded_model['train_losses']
             test_loss=self.loaded_model['test_losses']
             curr_epoch = self.loaded_model['epochs_completed'] 
+
+            train_accuracy= self.loaded_model['train_accuracy']
+            test_accuracy= self.loaded_model['test_accuracy']
+            train_f1= self.loaded_model['train_f1']
+            test_f1= self.loaded_model['test_f1']
+
             print('model is loaded in ')
 
 
@@ -105,10 +132,11 @@ class Train:
                 x= x.to(self.args.device)
                 y= y.to(self.args.device)
 
-
                 pred  = model(x) # no need to flatten for CEloss
 
                 batch_loss = loss(pred, y) # y is dtype long for CE Loss 
+                self.accuracy_metric.update(pred, y)
+                self.f1_metric.update(pred, y)
 
                 epoch_loss += batch_loss.item()
                 
@@ -128,21 +156,34 @@ class Train:
                 new = torch.argmax(pred, axis= -1 )
                
                 batch_loss = loss(pred, y)
+                self.accuracy_metric_test.update(pred, y)
+                self.f1_metric_test.update(pred, y)
 
                 epoch_loss_test+= batch_loss.item()
 
             train_loss.append(epoch_loss)
             test_loss.append(epoch_loss_test)
+            train_accuracy.append(self.accuracy_metric.compute())
+            test_accuracy.append(self.accuracy_metric_test.compute())
+            train_f1.append(self.f1_metric.compute())
+            test_f1.append(self.f1_metric_test.compute())
             print('epoch', epoch, 'train losses: ', epoch_loss, 'test losses: ',epoch_loss_test)
+            print('\ttrain_accuracy', train_accuracy[-1], 'test_accuracy', test_accuracy[-1]) 
+            print('\ttrain_f1', train_f1[-1], 'test_f1', test_f1[-1]) 
 
         model_state= {
             'args': self.args, 
             'model_state_dict': model.state_dict(), 
             'optimizer_state_dict': optimizer.state_dict(), 
 
-            'epochs_completed': curr_epoch + self.args.epochs, # ... 
+            'epochs_completed': curr_epoch + self.args.epochs, 
             'train_losses': train_loss, 
-            'test_losses': test_loss 
+            'test_losses': test_loss, 
+
+            'train_accuracy': train_accuracy, 
+            'test_accuracy': test_accuracy, 
+            'train_f1': train_f1, 
+            'test_f1': test_f1, 
         }
         return model_state 
     
