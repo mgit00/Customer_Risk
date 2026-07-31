@@ -11,14 +11,16 @@ class Train:
     called from model_helper 
     calls models.py (depending on the model selected)
     '''
-    def __init__(self, args): 
+    def __init__(self, args, loaded_model= None ): 
         self.args= args 
+        self.loaded_model= loaded_model
 
     def get_model(self, input_size, output_size): 
         ''' 
         this function gets the right model
         selected from the args line 
         '''
+        
         model_type= self.args.model_type
         if model_type == 'slp': 
             model = SLP(input_size, output_size)
@@ -74,6 +76,24 @@ class Train:
 
         optimizer= Adam(model.parameters(), lr= self.args.lr )
 
+
+        # tracking loss, epoch, metrics
+        train_loss= []
+        test_loss=[]
+        curr_epoch= 0 
+
+
+
+        # if the model is being loaded in, update the state_dicts, losses .... 
+        if self.loaded_model: 
+            model.load_state_dict( self.loaded_model['model_state_dict'])
+            optimizer.load_state_dict(self.loaded_model['optimizer_state_dict'])
+            train_loss=self.loaded_model['train_losses']
+            test_loss=self.loaded_model['test_losses']
+            curr_epoch = self.loaded_model['epochs_completed'] 
+            print('model is loaded in ')
+
+
         
         print('the dtypes for x data and model are: ', 
               [next(iter(train_loader))[0].dtype] ,
@@ -81,9 +101,7 @@ class Train:
         print('the dtypes for the target data are: ', next(iter(train_loader))[1].dtype) # dtype long for CELoss 
 
         
-
-
-        for epoch in range(self.args.epochs): 
+        for epoch in range(curr_epoch, curr_epoch+ self.args.epochs): 
             epoch_loss = 0 
             epoch_loss_test = 0 
 
@@ -123,9 +141,18 @@ class Train:
 
                 epoch_loss_test+= batch_loss.item()
 
+            train_loss.append(epoch_loss)
+            test_loss.append(epoch_loss_test)
+            print('epoch', epoch, 'train losses: ', epoch_loss, 'test losses: ',epoch_loss_test)
 
-            print('epoch', epoch, 'losses for train and test: ', epoch_loss, epoch_loss_test)
-        
-        # raise Exception('here')
-        return None 
+        model_state= {
+            'args': self.args, 
+            'model_state_dict': model.state_dict(), 
+            'optimizer_state_dict': optimizer.state_dict(), 
+
+            'epochs_completed': curr_epoch + self.args.epochs, # ... 
+            'train_losses': train_loss, 
+            'test_losses': test_loss 
+        }
+        return model_state 
         

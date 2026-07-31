@@ -24,6 +24,9 @@ filenames.add_argument('--applications_processed', default='dataset/applications
 filenames.add_argument('--application_record_pipeline', default= 'model_info/application_record_pipeline.pkl', help= 'application pipeline for processing')
 filenames.add_argument('--data', default='dataset/data.csv', help='the customer_risk and applications_processed joined dataset')
 filenames.add_argument('--elbow_curve_for_kmeans', default='images/elbow_curve_for_kmeans.png', help= 'location to save the elbow curve')
+filenames.add_argument('--loaded_model', nargs ='?', const= 'model_info/saved_model.pt', help = 'filename for loading in model')
+filenames.add_argument('--saved_model', default= 'model_info/saved_model.pt', help = 'filename for saving model')
+filenames.add_argument('--nn_plot', default= 'images/nn_loss', dest= 'nn_plot_file', help='base name for the nn plot, will be appended below...')
 
 dataprocessing= parser.add_argument_group(title = 'args for mode data_processing')
 dataprocessing.add_argument('--target_mode', choices= ['classification', 'regression'], default = 'classification', help= 'decides if the dataset created will have credit risk as a continuous feature')
@@ -45,10 +48,14 @@ clustering = parser.add_argument_group(title='args to deal with various k for km
 clustering= parser.add_argument('--k_values' , nargs= 2, default = [2, 5], type= int, help= 'the starting and ending k values to plot the elbow curve for. min of 1 cluster' )
 
 
+
+
 args= parser.parse_args()
+# dynamic changes to filename based on args that are passed in 
+args.nn_plot_file = args.nn_plot_file + '_' + args.model_type + '_' + args.target_mode + '.png'
+
 
 print(args)
-
 
 #---- 
 from driver import Driver

@@ -1,6 +1,7 @@
 # use static_method for utils class 
 import pandas as pd 
 from sklearn.pipeline import Pipeline 
+import torch 
 
 import cloudpickle 
 
@@ -39,5 +40,16 @@ class Utils:
             pipeline = cloudpickle.load(filename)
 
         return pipeline 
+
+    @staticmethod
+    def save_model(location, model_state): 
+        torch.save(model_state, location) 
+        print('model state saved to: ', location)
+
+    @staticmethod
+    def load_model(location): 
+        model_state  = torch.load(location, weights_only = False )
+        print('model loaded in from: ', location)
+        return model_state
 
     

@@ -14,8 +14,35 @@ class ModelHelper:
     this handles the train and predict modes too 
         - this involves continuing to train based on a given model, where the params of the model have to be checked 
     '''
-    def __init__(self, args): 
+    def __init__(self, args, loaded_model= None): 
         self.args= args 
+        self.loaded_model = loaded_model
+
+        if loaded_model: 
+            self.loaded_model_check() 
+
+    def loaded_model_check(self): 
+        '''
+        if there is a loaded model specified, ensure that the model is correct to the parameters set in the current model 
+        stop all training if the models do not match 
+
+        the items that have to match are: 
+        - model_type 
+        - hidden_sizes 
+        - k_value 
+        '''
+        matches= {}
+        if self.args.model_type != self.loaded_model['args'].model_type: 
+            matches['model_type'] = False 
+        if self.args.hidden_sizes != self.loaded_model['args'].hidden_sizes:
+            matches['hidden_sizes'] = False 
+        if self.args.k_value != self.loaded_model['args'].k_value:
+            matches['k_value'] = False  
+
+        if not all(matches.values()): # if any one of them is false 
+            raise Exception("current specified model and loaded model params don't match: ", matches )
+        else: 
+            print('model to be loaded has matching params to args')
     
     def load_data(self, dataset): # returns dataloader objects 
         '''
@@ -69,7 +96,7 @@ class ModelHelper:
         the model state will be passed back to driver so that it can be saved 
         '''
 
-        train = Train(self.args)
+        train = Train(self.args, self.loaded_model)
         model_state = train.training_loop(train_test_dataloaders) # can specify existimg model to train from if wanted with optional argument... 
 
 

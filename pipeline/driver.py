@@ -13,6 +13,7 @@ class Driver:
     '''
     def __init__(self, args): 
         self.args= args 
+        self.plotting= Plotting(self.args)
 
     def do_mode(self): 
 
@@ -23,7 +24,7 @@ class Driver:
             # .... 
         
         elif self.args.mode == 'kmeans_only': 
-            # self.process_data()
+            self.process_data()
             self.kmeans()
 
         # sections of the pipeline
@@ -91,8 +92,7 @@ class Driver:
         intertias= clustering.get_intertias(data)
 
         # plot the results 
-        plotting= Plotting(self.args)
-        plotting.kmeans_elbow_curve(intertias)
+        self.plotting.kmeans_elbow_curve(intertias)
 
 
 
@@ -113,19 +113,22 @@ class Driver:
         plots will be saved here too, since this is used to interact with the directory 
         '''
 
-        modelhelper= ModelHelper(self.args )
+        modelhelper= ModelHelper(self.args, Utils.load_model(self.args.loaded_model) if self.args.loaded_model else None ) # check if there is an existing model which should be trained upon 
 
         # read data from directory based on args 
         data = Utils.read_data(self.args.data)
         train_test_dataloaders= modelhelper.load_data(data)
 
-        # check if there is an existing model which should be trained upon .... 
-
+        
         # train model 
         model_state= modelhelper.training(train_test_dataloaders)
         
         # save model 
+        Utils.save_model(self.args.saved_model, model_state)
+
         # plot, and save plot 
+        self.plotting.nn_plotting(model_state)
+        
 
 
         # layout how the code structure for the model building should be in .md file ... 
