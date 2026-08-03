@@ -29,3 +29,23 @@ python pipeline/argument_parser.py --mode build_model --epochs 10 --saved_model 
 - loading in 
     - add distances to centroids to data 
     - pass through the nn model 
+
+
+integrate kmeans in through redoing the dataloader object. 
+for each of the dataset, go through adn ge tthe centroid locations 
+
+---- 
+ -before splitting the data for train.py, pass the data through to kmeans model to train it 
+ - the continue splitting up the data 
+ - when in the train loop, call the model 
+    - the model will take the og data, pass it through the trained kmeans model, then apply rest of fnn forward to it 
+
+this splits the training and predicting portion of the kmeans model 
+
+when working with the autoencoder, do the same process but add encoder training loop beforehand
+- this is done by creating og data loader, to train the autoencoder model 
+- taking the embeddings from the trained autoencoder model (pass back fewer dims, a batch at a time), then applying kmeans
+- then passing through to fnn 
+
+this requires that the trained kmeans and autoencoder models are kept as instance references in memory. this is used for calling the predictions 
+- in order to get references to trained models, train and save. keep the model path as the way to get the memory. 

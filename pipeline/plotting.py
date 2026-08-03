@@ -20,32 +20,6 @@ class Plotting:
     def nn_plotting(self, model_state): 
         epochs = model_state['epochs_completed']
 
-        # fig, (ax1, ax2)= plt.subplots( 1, 2)
-        # ax1.plot(range(epochs), model_state['train_losses'], label = 'Train Losses')
-        # ax1.plot(range(epochs), model_state['test_losses'], label = 'Test Losses')
-
-        # ax1.set_title('Train and Test Losses for: ' + self.args.model_type + ' '  + self.args.target_mode)
-        # ax1.set_xlabel('Epochs')
-        # ax1.set_ylabel('CrossEntropyLoss' if self.args.target_mode == 'classification' else 'MSELoss')
-        # ax1.tick_params(axis= 'x', rotation= 30)
-        # ax1.legend()
-
-
-        # ax2.plot(range(epochs), model_state['train_accuracy'], label= 'Train Accuracy')
-        # ax2.plot(range(epochs), model_state['test_accuracy'], label= 'Test Accuracy')
-        # ax2.plot(range(epochs), model_state['train_f1'], label= 'Train F1')
-        # ax2.plot(range(epochs), model_state['test_f1'], label= 'Test F1')
-
-        # ax2.set_title('Train and Test Losses for Accuracy and F1 Score')
-        # ax2.set_xlabel('Epochs')
-        # ax2.tick_params(axis= 'x', rotation= 30)
-        # ax2.legend()
-
-
-        # fig.savefig(self.args.nn_plot_file)
-        # print('plots saved to: ', self.args.nn_plot_file)
-        # fig.show()
-
         plt.plot(range(epochs), model_state['train_losses'], label = 'Train Losses')
         plt.plot(range(epochs), model_state['test_losses'], label = 'Test Losses')
 

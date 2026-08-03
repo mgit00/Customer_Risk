@@ -1,16 +1,7 @@
 import torch.nn as nn 
 
 from sklearn.cluster import KMeans
-class KMeansModel: 
-    def __init__(self, kvalue): 
-        self.model= KMeans(n_clusters= kvalue, random_state= 1 ) # random state for reproducability 
-    
-    def forward(self, data):
-        cluster_labels= self.model.fit_predict(data)
-        return cluster_labels
 
-
-    
 
 class SLP(nn.Module): 
     '''
@@ -55,20 +46,45 @@ class FNN(nn.Module):
         return out 
     
 
+class KMeansModel: 
+    '''
+    called in model_helper to train and save model 
+    the models is loaded in later on to use in train.py predict
+    '''
+    def __init__(self): 
+        # model initialize 
+        self.model = KMeans(n_clusters= self.args.k_value, random_state=1 )
+         
+    def train(self, data): 
+        # train the model 
+        self.model.fit(data)
+        pass 
+
+    def predict_data(self,data_batch): 
+        # cluster_distances = # get distances to each label
+        pass 
+        # return databatch with the centroid distances 
 
 class KMeansFNN(nn.Module): 
     '''
     model which takes the kmeans_classifications and adds it to the data
     then trains the fnn model
+
+    the trained kmeans model is passed in 
     '''
     def __init__(self, k_value, input_size, hidden_sizes, output_size): 
         super().__init__()
 
         self.fnn= FNN(input_size, hidden_sizes, output_size)
 
-        
+
         pass 
 
 class AutoencoderKMeansFNN(nn.Module): 
+    '''
+    model which takes the autoencoder applied kmeans centroid distances and adds it to the data 
+    trained autoencoder reference is passed in 
+    trained kmeans model reference is passed in 
+    '''
     def __init__(self): 
         pass 

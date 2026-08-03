@@ -5,7 +5,7 @@ from torch.optim import Adam
 # from torcheval.metrics import MulticlassAccuracy, MulticlassF1Score
 from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score
 
-from models import SLP, FNN, KMeansFNN, AutoencoderKMeansFNN 
+from models import SLP, FNN, KMeansFNN, AutoencoderKMeansFNN, KMeansModel
 
 class Train: 
     '''
@@ -295,6 +295,8 @@ class Train:
         return model_state 
 
 
+    def train_kmeans(self, data): 
+        # train the kmeans model and save it to directory 
 
 
     def training_loop(self, train_test_dataloaders): # old training loop, pipeline workflow changed now 
