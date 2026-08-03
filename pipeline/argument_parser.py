@@ -27,6 +27,7 @@ filenames.add_argument('--elbow_curve_for_kmeans', default='images/elbow_curve_f
 filenames.add_argument('--loaded_model', nargs ='?', const= 'model_info/saved_model.pt', help = 'filename for loading in model')
 filenames.add_argument('--saved_model', default= 'model_info/saved_model.pt', help = 'filename for saving model')
 filenames.add_argument('--nn_plot', default= 'images/nn_plots', dest= 'nn_plot_file', help='base name for the nn plot, will be appended below...')
+filenames.add_argument('--kmeans_model', default='model_info/kmeans_model.pkl', help='file to save the trained kmeans model')
 
 dataprocessing= parser.add_argument_group(title = 'args for mode data_processing')
 dataprocessing.add_argument('--target_mode', choices= ['classification', 'regression'], default = 'classification', help= 'decides if the dataset created will have credit risk as a continuous feature')

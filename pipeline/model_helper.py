@@ -21,6 +21,8 @@ class ModelHelper:
         if loaded_model: 
             self.loaded_model_check() 
 
+        self.train = Train(self.args, self.loaded_model) # model given is guaranteed to be valid, checked already  
+
     def loaded_model_check(self): 
         '''
         if there is a loaded model specified, ensure that the model is correct to the parameters set in the current model 
@@ -77,6 +79,13 @@ class ModelHelper:
             # batching not done here, done in dataloader 
             # shuffle rows 
 
+        # IF KMEANS OR AUTOENCODER STEP, TRAIN THESE MODELS HERE THEN CONTINUE
+        if self.args.model_type=='kmeans_fnn': 
+            # train the kmeans model and save it, keep reference to be used later 
+            self.train.train_kmeans(train)
+        elif self.args.model_type== 'autoencoder_kmeans_fnn': 
+            pass 
+
         # zip into tensordataset: train and test (for train loop parts)
         train= TensorDataset(xtrain, ytrain) # training set 
         test= TensorDataset(xtest, ytest) # testing set 
@@ -99,12 +108,12 @@ class ModelHelper:
         the model state will be passed back to driver so that it can be saved 
         '''
 
-        train = Train(self.args, self.loaded_model) # model given is guaranteed to be valid, checked already  
+        
 
         if self.args.target_mode =='classification': 
-            model_state = train.training_loop_classification(train_test_dataloaders) # can specify existimg model to train from if wanted with optional argument... 
+            model_state = self.train.training_loop_classification(train_test_dataloaders) # can specify existimg model to train from if wanted with optional argument... 
         else: # regression 
-            model_state = train.training_loop_regression(train_test_dataloaders)
+            model_state = self.train.training_loop_regression(train_test_dataloaders)
 
         return model_state 
 
