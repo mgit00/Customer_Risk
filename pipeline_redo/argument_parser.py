@@ -1,0 +1,92 @@
+import argparse 
+from driver import Driver 
+
+import logging 
+
+from utils import Utils
+
+
+'''
+this parser will have subgrouping associated with the file they are used in 
+this makes the parsing easier with the redone pipeline 
+
+create full pipeline
+when testing, use helper functions to debug 
+'''
+
+parser= argparse.ArgumentParser(description='model creation and pipeline')
+parser.add_argument('--logger_level', choices=['info', 'debug'], default = 'debug', help= 'logger level setting')
+parser.add_argument('--automatic_file_naming', default= True, choices=[True, False], help= 'automatic file naming, which doesnt have to be specified in commandline' )
+
+mode = parser.add_mutually_exclusive_group()
+# store_true means that mode is T/F indicator in an exclusive group 
+mode.add_argument('--run_pipeline',  action= 'store_true', help='this runs the full pipeline')
+mode.add_argument('--build_code',  action='store_true', help= 'this calls the helper functions used to debug code')
+
+
+data_processing =  parser.add_argument_group(title='args for data_processing.py')
+    # original data 
+data_processing.add_argument('--application_record', default='dataset/application_record.csv', help='original data ')
+data_processing.add_argument('--credit_record', default='dataset/credit_record.csv', help='original data ')
+    # saving filenames 
+data_processing.add_argument('--data_pipeline', default = 'model_info/data_processing/application_record_pipeline.pkl', help='location to save the application_record sklearn pipeline')
+data_processing.add_argument('--data_filename', default = 'model_info/data_processing/data.csv', help='location to save the application_record sklearn pipeline')
+    # classification or regression 
+data_processing.add_argument('--output_mode', default = 'classification' , choices=['classification', 'regression'], dest='output_mode')
+
+modelhelper = parser.add_argument_group(title='args for modelhelper.py')
+# read data from data_filename 
+modelhelper.add_argument('--batch_size', default = 1000, type = int, help = 'batch size for dataloader- smaller batches mean less memory, but noisy ')
+modelhelper.add_argument('--model_type', choices =['slp', 'fnn', 'kmeans+fnn', 'autoencoder+kmeans+fnn'], default = 'slp', help = 'model type to choose from')
+
+train= parser.add_argument_group(title = 'args for train.py training loop ')
+train.add_argument('--lr', default = .0001, type = float)
+train.add_argument('--epochs', default = 3, type= int )
+
+args= parser.parse_args()
+
+
+# automatic file naming 
+if args.automatic_file_naming: 
+    # args.data_pipeline stays the same 
+    args.data_filname = 'model_info/data_processing/data' + '_'+ args.output_mode + '.csv'
+
+# if filenames don't exist, make them
+Utils.make_path([args.data_pipeline, args.data_filename])
+
+
+
+
+for arg in args.__dict__.items(): 
+    print(arg)
+
+# constant args which cannot be changed in the command line 
+args.logger_name = 'main_logger' 
+
+
+'''
+initialize logger
+allow consol for logger 
+'''
+logger= logging.getLogger(args.logger_name) # keep logger name instead of __name__, this won't be a problem when imported - where __main__ becomes main
+level_attr = getattr(logging, args.logger_level.upper()) # similar tp logging.DEBUG
+logging.basicConfig(filename ='model_info/logger.log', filemode='w',  level = level_attr)
+
+# needed for printing 
+console = logging.StreamHandler()
+console.setLevel(level_attr) # logging.DEBUG
+logger.addHandler(console)
+
+logger.debug('finshed argparse and logger initialization: start driver')
+
+
+
+'''
+call driver.py to begin pipeline 
+'''
+driver_class = Driver(args)
+
+if args.run_pipeline: 
+    driver_class.begin_pipeline()
+elif args.build_code: 
+    driver_class.build_code()

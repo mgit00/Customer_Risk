@@ -14,40 +14,47 @@ class ModelHelper:
     this handles the train and predict modes too 
         - this involves continuing to train based on a given model, where the params of the model have to be checked 
     '''
-    def __init__(self, args, loaded_model= None): 
-        self.args= args 
-        self.loaded_model = loaded_model
+    # def __init__(self, args, loaded_model= None): 
+    #     self.args= args 
+    #     self.loaded_model = loaded_model
 
-        if loaded_model: 
-            self.loaded_model_check() 
+    #     if loaded_model: 
+    #         self.loaded_model_check() 
 
-        self.train = Train(self.args, self.loaded_model) # model given is guaranteed to be valid, checked already  
+    #     self.train = Train(self.args, self.loaded_model) # model given is guaranteed to be valid, checked already  
 
-    def loaded_model_check(self): 
-        '''
-        if there is a loaded model specified, ensure that the model is correct to the parameters set in the current model 
-        stop all training if the models do not match 
+    def __init__(self, args): 
+        self.args = args 
+        
 
-        the items that have to match are: 
-        - model_type 
-        - hidden_sizes 
-        - k_value 
-        '''
-        matches= {}
-        if self.args.target_mode != self.loaded_model['args'].target_mode:
-            matches['target_mode'] = False 
-        if self.args.model_type != self.loaded_model['args'].model_type: 
-            matches['model_type'] = False 
-        if self.args.hidden_sizes != self.loaded_model['args'].hidden_sizes:
-            matches['hidden_sizes'] = False 
-        if self.args.k_value != self.loaded_model['args'].k_value:
-            matches['k_value'] = False  
 
-        if not all(matches.values()): # if any one of them is false 
-            raise Exception("current specified model and loaded model params don't match: ", matches )
-        else: 
-            print('model to be loaded has matching params to args')
+    # def loaded_model_check(self): 
+    #     '''
+    #     if there is a loaded model specified, ensure that the model is correct to the parameters set in the current model 
+    #     stop all training if the models do not match 
+
+    #     the items that have to match are: 
+    #     - model_type 
+    #     - hidden_sizes 
+    #     - k_value 
+    #     '''
+    #     matches= {}
+    #     if self.args.target_mode != self.loaded_model['args'].target_mode:
+    #         matches['target_mode'] = False 
+    #     if self.args.model_type != self.loaded_model['args'].model_type: 
+    #         matches['model_type'] = False 
+    #     if self.args.hidden_sizes != self.loaded_model['args'].hidden_sizes:
+    #         matches['hidden_sizes'] = False 
+    #     if self.args.k_value != self.loaded_model['args'].k_value:
+    #         matches['k_value'] = False  
+
+    #     if not all(matches.values()): # if any one of them is false 
+    #         raise Exception("current specified model and loaded model params don't match: ", matches )
+    #     else: 
+    #         print('model to be loaded has matching params to args')
     
+
+
     def load_data(self, dataset): # returns dataloader objects 
         '''
         given the data and args, prepare the data to be fed into the model
