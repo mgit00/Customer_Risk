@@ -102,3 +102,27 @@ inorder to deal with kmeans, a k has to be chosen first
     
 ### notes: 
 - the reason why this is a classification problem rather than regression is that the regression model does not have enough samples to train on. it is possibly (?) easier to train on a classifyer rather than a regressor. 
+
+
+### autoencoder model 
+for the autoencoder kmeans fnn model , the last training loop which deals with the fnn model has to be adjusted a bit 
+because the model also contains the autoencoder layers, backpropating the loss gradients will also lead to the autoencoder's layers being updated. this shouldn't happen ideally bcause the autoencoder should already be fully trained. 
+
+to prevent the gradients from being backpropogated, there are 3 things that can be done: 
+1) freeze the params (anytime before training loop?)
+2) detatch the output tensor (in the forward() function )
+3) exclude the autoencoder params from the optimizer 
+
+
+### now ... 
+- need to save model state or atleast get it back to start plotting 
+- return 
+    - args 
+    - losses 
+    - losses test 
+    - accuracy 
+    - accuracy test 
+    - f1 score 
+    - f1 score test 
+
+- rework how to deal with metrics 

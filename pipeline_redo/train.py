@@ -19,8 +19,29 @@ class Train:
             self.logger.info('loss function: mse')
             return MSELoss()
     
+    def freeze_params(self, submodel): 
+        '''
+        this freezes the params of a model
+        mainly for freezing submodel whose params shouldn't be updated anymore  
+        used when needing to freeze the autoencoder layers during fnn forward()
+        '''
+        for param in submodel.parameters(): 
+            param.requires_grad = False 
 
     def train(self, data: tuple, model) -> dict: # returns model_state  
+        '''
+        training loop 
+        - initializes model, loss func, and optimizer 
+        - places model and data on gpu if available 
+        - training loop for epoch 
+        - also deals with creating model state at end of training 
+        - keeps track of model training/ model metrics 
+
+        to keep track of model metrics: make new function 
+        - loss tracker 
+        - accuracy 
+        - f1 
+        '''
         self.logger.debug('in training loop ')
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -34,17 +55,14 @@ class Train:
         # place model on device 
         model= model.to(device)
         # ensure that all params have gradient computations enabled 
+            # this can be false for fnn of autoencoder kemans fnn model since autoencoder shouldn't be trained anymore
         self.logger.debug('all model params require gradient: '+ str(all(param.requires_grad for param in model.parameters())))
-        # for param in model.parameters(): 
-        #     param.requires_grad=True
         
-        # print( [param.requires_grad for param in model.parameters()])
-
         # make optimizer 
         optimizer = Adam(model.parameters(), lr = self.args.lr)
 
         # get loss function CEL or MSEL based on classification or regression 
-        loss_func = CrossEntropyLoss() # self.get_loss_func()
+        loss_func = self.get_loss_func()
 
         
 

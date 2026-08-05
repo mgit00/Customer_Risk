@@ -1,10 +1,10 @@
 from utils import Utils 
-from models import SLP
+from models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
 from train import Train 
 
 import torch 
 from sklearn.model_selection import train_test_split
-from torch.utils.data import TensorDataset, DataLoader 
+from torch.utils.data import TensorDataset, DataLoader   
 
 import logging 
 
@@ -93,7 +93,8 @@ class ModelHelper:
         train.py -> model.py 
             call predict() for each model to call on the different steps for each model 
     
-        
+
+    better workflow done below :)
 
 
     '''
@@ -102,7 +103,7 @@ class ModelHelper:
         self.args= args 
         self.logger= logging.getLogger(self.args.logger_name)
 
-        self.train= Train(self.args)
+        self.train_class= Train(self.args)
 
     def load_data(self) -> dict: # return train, test for x, y 
         '''
@@ -145,7 +146,7 @@ class ModelHelper:
         self.logger.info('tensordataset is batched and shuffled with dataloader')
         return train_loader, test_loader 
 
-    def model_chooser(self) -> None: 
+    def model_chooser(self) -> dict: # model state  
         '''
         choose the model to train 
         each one will be done uniquely to reduce computation cost 
@@ -154,21 +155,113 @@ class ModelHelper:
 
         self.logger.debug('model chosen: '+ self.args.model_type)
 
+
         if self.args.model_type =='slp': 
-            self.slp_chosen()
+            model_state= self.slp_chosen()
             pass 
         elif self.args.model_type == 'fnn': 
+            model_state= self.fnn_chosen()
             pass 
         elif self.args.model_type == 'kmeans+fnn': 
+            model_state = self.kmeans_fnn_chosen()
             pass 
         elif self.args.model_type == 'autoencoder+kmeans+fnn': 
+            model_state = self.autoencoder_kmeans_fnn_chosen()
             pass 
-
-        return 
+        
+        self.logger.info('completed training for: '+self.args.model_type)
+        return model_state 
     
+    def autoencoder_kmeans_fnn_chosen(self) -> dict: # model state  
+        '''
+        this is for the autoencoder + kmeans + fnn model
+        try to contain all within 1 model for more modularity in code  
+        '''
+        # get data 
+        data = self.load_data()
+
+        # turn data in dataloader objects 
+        train, test = self.make_dataloader(data)
+
+        input_size = next(iter(train))[0].shape[1] 
+        hidden_sizes = self.args.hidden_sizes 
+        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        model = AutoencoderKmeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
+        self.logger.info('autoencoder means fnn model is made: '+ str(model))
 
 
-    def slp_chosen(self): # -> return model state 
+        ### autoencoder section (get the sub model though the main model)
+        self.logger.debug('train autoencoder')
+        # initalize the model 
+        autoencoder_model = model.autoencoder
+        # pass train dataloader to train loop to train the model 
+        autoencoder_model_state = self.train_class.train(data= (train, test), model = autoencoder_model )
+        self.logger.info('autoencoder trained')
+
+        ### kmneans section 
+        self.logger.debug('train kmeans')
+        # initalize model 
+        kmeans_model = model.kmeans
+         # get embeddings from autoencoder 
+        embeddings = autoencoder_model.predict_embedding(data['trainx'])
+        # train model on entire data embeddings 
+        # kmeans_model.fit(data['trainx'])
+        kmeans_model.fit(embeddings.detach().numpy()) # want numpy array for sklearn kmeans  
+        self.logger.info('kmeans trained on autoencoder embeddings')
+        
+
+        ### fnn model 
+        self.logger.debug('train fnn portion')
+        # initialize model- done above 
+        # freeze params of autoencoder so backprop doesn't update layers 
+        self.train_class.freeze_params(autoencoder_model)
+        # train loop applied to dataloader data 
+        model_state = self.train_class.train(data = (train, test), model = model )
+        # within the model, forward is used to get predictions from autoencoder and kmeans 
+        self.logger.info('autoencoder kmeans fnn model trained')
+
+        return model_state 
+
+
+    def kmeans_fnn_chosen(self)-> dict: 
+        '''
+        kmeans + fnn model 
+        in order to do this, the kmeans model has to be trained already and integrated into the data 
+            - this is the proper way to 
+        i want the class for this model to be defined on its own
+            this means that the class will use a saved kmeans model during the forward pass
+        '''
+        # get data 
+        data= self.load_data()
+
+        # get dataloader from data 
+        train,test = self.make_dataloader(data)
+
+        # get layer sizes 
+        input_size = next(iter(train))[0].shape[1] + 1 # since cluster labels will be added in model 
+        hidden_sizes = self.args.hidden_sizes 
+        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+         
+        # initialize model 
+        model = KMeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
+        self.logger.info('kmeans fnn model is made: '+ str(model))
+
+        # use data to train the kmeans model 
+        model.train_kmeans(data['trainx']) # train the kmeans model 
+        self.logger.info('kmeans model is trained')
+
+        # call training loop  
+        model_state = self.train_class.train((train, test), model) # dataloaders passed in with model which already has trained kmeans 
+        self.logger.debug('fnn is now trained')
+
+        return model_state
+
+    # def driver(self): 
+    #     # call model_chooser, returns model_state 
+    #     # plot the model_state training info 
+    #     pass 
+
+    def slp_chosen(self) -> dict: # model state 
         '''
         single layer perceptron model 
         mainly used for debugging code
@@ -179,7 +272,6 @@ class ModelHelper:
         train, test = self.make_dataloader(data)
         # train model with dataloader 
 
-        # print(next(iter(train)))
         input_size = next(iter(train))[0].shape[1]
         output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
         
@@ -190,7 +282,34 @@ class ModelHelper:
         model = SLP(input_size, output_size)
 
         # pass to training loop 
-        model_state = self.train.train((train, test), model)
+        model_state = self.train_class.train((train, test), model)
+        return model_state 
+
+    def fnn_chosen(self) -> dict: 
+        '''
+        fnn 
+        hidden size determines the number of layers
+        ''' 
+
+        # get data 
+        data = self.load_data()
+        # make dataloader 
+        train, test= self.make_dataloader(data)
+
+        # get layer sizes 
+        input_size = next(iter(train))[0].shape[1]
+        hidden_sizes = self.args.hidden_sizes 
+        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        
+
+        # define model 
+        model = FNN(input_size, hidden_sizes, output_size)
+        self.logger.info('fnn model is made: '+ str(model))
+
+        # pass to training loop 
+        model_state = self.train_class.train(data = (train, test), model = model )
+
+        return model_state 
 
 
 

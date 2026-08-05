@@ -38,10 +38,15 @@ modelhelper = parser.add_argument_group(title='args for modelhelper.py')
 # read data from data_filename 
 modelhelper.add_argument('--batch_size', default = 1000, type = int, help = 'batch size for dataloader- smaller batches mean less memory, but noisy ')
 modelhelper.add_argument('--model_type', choices =['slp', 'fnn', 'kmeans+fnn', 'autoencoder+kmeans+fnn'], default = 'slp', help = 'model type to choose from')
+modelhelper.add_argument('--hidden_sizes', nargs= '+', type= int, default= [30, 20], help= 'list of hidden sizes for the hidden layers')
 
 train= parser.add_argument_group(title = 'args for train.py training loop ')
 train.add_argument('--lr', default = .0001, type = float)
 train.add_argument('--epochs', default = 3, type= int )
+
+models = parser.add_argument_group(title = 'args for models.py')
+models.add_argument('--k_value', default = 11, type = int, help = 'int > 0, number of clusters for kmeans models')
+
 
 args= parser.parse_args()
 
