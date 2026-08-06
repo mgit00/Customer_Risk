@@ -49,3 +49,7 @@ when working with the autoencoder, do the same process but add encoder training 
 
 this requires that the trained kmeans and autoencoder models are kept as instance references in memory. this is used for calling the predictions 
 - in order to get references to trained models, train and save. keep the model path as the way to get the memory. 
+
+
+# redone pipeline
+python pipeline_redo/argument_parser.py --run_pipeline --model_type autoencoder+kmeans+fnn --output_mode regression 

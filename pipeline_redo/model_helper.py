@@ -116,11 +116,11 @@ class ModelHelper:
         data = Utils.read_data(self.args.data_filename)
         self.logger.debug('data is loaded ')
 
-        x,y = data.iloc[:, :-1], data.iloc[:, -1] # df, and series 
+        x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
 
         # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
         x = torch.tensor(x.values, dtype = torch.float32) # float32 = default for pytorch models/model layers 
-        y = torch.tensor(y, dtype= torch.long if self.args.output_mode == 'classification' else torch.float32)
+        y = torch.tensor(y.values, dtype= torch.long if self.args.output_mode == 'classification' else torch.float32)
 
         trainx, testx, trainy, testy = train_test_split(x, y, test_size=.3, random_state= 1, shuffle = True)
             # random state makes it replicable 
@@ -179,10 +179,18 @@ class ModelHelper:
         '''
         # get data 
         data = self.load_data()
+        autoencoder_data = {
+            'trainx':data['trainx'], 
+            'testx':data['testx'], 
+            'trainy':data['trainx'], 
+            'testy':data['testx']}
 
         # turn data in dataloader objects 
-        train, test = self.make_dataloader(data)
+            # the dataloader objects will be different for the autoencoder model and fnn model 
+        train, test = self.make_dataloader(data) # target as the risk group or score 
+        train_autoencoder, test_autoencoder = self.make_dataloader(autoencoder_data) # target as the input itself
 
+        # initalize model 
         input_size = next(iter(train))[0].shape[1] 
         hidden_sizes = self.args.hidden_sizes 
         output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
@@ -195,7 +203,9 @@ class ModelHelper:
         # initalize the model 
         autoencoder_model = model.autoencoder
         # pass train dataloader to train loop to train the model 
-        autoencoder_model_state = self.train_class.train(data= (train, test), model = autoencoder_model )
+            # the target is the same as the input for autoencoder
+            # loss func should be mse 
+        autoencoder_model_state = self.train_class.train(data= (train_autoencoder, test_autoencoder), model = autoencoder_model )
         self.logger.info('autoencoder trained')
 
         ### kmneans section 

@@ -42,7 +42,7 @@ class Driver:
         # then, do model building 
             # this is where the branching off has to be done 
             # build modular code so that i can reuse sections as needed 
-
+        self.modelhelper.model_chooser()
 
         self.logger.debug('pipeline for data and model finished')
 

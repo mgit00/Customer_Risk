@@ -54,7 +54,7 @@ args= parser.parse_args()
 # automatic file naming 
 if args.automatic_file_naming: 
     # args.data_pipeline stays the same 
-    args.data_filname = 'model_info/data_processing/data' + '_'+ args.output_mode + '.csv'
+    args.data_filename = 'model_info/data_processing/data' + '_'+ args.output_mode + '.csv'
 
 # if filenames don't exist, make them
 Utils.make_path([args.data_pipeline, args.data_filename])

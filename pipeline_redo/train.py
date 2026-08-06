@@ -49,7 +49,6 @@ class Train:
 
         train_dataloader, test_dataloader = data 
         # place data on device when iterating 
-        # model = SLP(35, 5)
 
 
         # place model on device 
@@ -79,7 +78,7 @@ class Train:
             for x,y in train_dataloader: 
                 # place onto gpu if available 
                 x,y = x.to(device), y.to(device)
-
+                
                 pred = model(x)
                 loss = loss_func(pred, y)
                 
