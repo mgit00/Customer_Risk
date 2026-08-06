@@ -1,6 +1,7 @@
 import torch 
 import logging 
-from models import SLP
+from model_metrics import ModelMetrics, LossFunc, Levels
+from model_state import ModelState
 
 from torch.optim import Adam 
 from torch.nn import CrossEntropyLoss, MSELoss 
@@ -11,8 +12,14 @@ class Train:
         
         self.logger = logging.getLogger(self.args.logger_name)
 
-    def get_loss_func(self): 
-        if self.args.output_mode =='classification': 
+
+    def get_loss_func(self, model_name ): 
+        #  if the model is autoencoder, the loss is automatically MSE 
+            # since the target is the input 
+        if model_name =='Autoencoder': 
+            self.logger.info('loss function autoencoder: mse')
+            return MSELoss()
+        elif self.args.output_mode =='classification': 
             self.logger.info('loss function: cross entropy')
             return CrossEntropyLoss()
         else : 
@@ -44,15 +51,15 @@ class Train:
         '''
         self.logger.debug('in training loop ')
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.logger.info('device used: ' + str(device) ) # torch.cuda.current_device() gives integer 
+        self.args.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.logger.info('device used: ' + str(self.args.device) ) # torch.cuda.current_device() gives integer 
 
         train_dataloader, test_dataloader = data 
         # place data on device when iterating 
 
 
         # place model on device 
-        model= model.to(device)
+        model= model.to(self.args.device)
         # ensure that all params have gradient computations enabled 
             # this can be false for fnn of autoencoder kemans fnn model since autoencoder shouldn't be trained anymore
         self.logger.debug('all model params require gradient: '+ str(all(param.requires_grad for param in model.parameters())))
@@ -61,28 +68,32 @@ class Train:
         optimizer = Adam(model.parameters(), lr = self.args.lr)
 
         # get loss function CEL or MSEL based on classification or regression 
-        loss_func = self.get_loss_func()
+        loss_func = self.get_loss_func(model_name= model.__class__.__name__)
 
-        
+        # initialize model state 
+        model_state_class = ModelState(self.args) # init to empty 
 
-        losses=[]
-        losses_test=[]
+        # initlalize model metrics 
+        mode = LossFunc.MSE if loss_func.__class__.__name__ == 'MSELoss' else LossFunc.CrossEntropyLoss
+        modelmetrics= ModelMetrics(self.args, mode = mode )
+        modelmetrics.initialize_metrics()
+        modelmetrics.initalize_metric_trackers()
 
         # do training loop 
         for epoch in range(self.args.epochs): 
-            epoch_loss = 0 
-            epoch_loss_test = 0 
 
             model.train()
             # loop through batches from dataloader 
             for x,y in train_dataloader: 
                 # place onto gpu if available 
-                x,y = x.to(device), y.to(device)
+                x,y = x.to(self.args.device), y.to(self.args.device)
                 
                 pred = model(x)
-                loss = loss_func(pred, y)
+                if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
+                    y= y.flatten() # for CEL
+                loss = loss_func(pred, y) 
                 
-                epoch_loss+= loss.item()
+                modelmetrics.update_batch_level(loss.item(),  pred, y, level = Levels.TRAIN)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -92,27 +103,23 @@ class Train:
             with torch.no_grad(): # disable gradient computation
                 for x,y in test_dataloader: 
                     # place onto gpu if needed 
-                    x,y = x.to(device), y.to(device)
+                    x,y = x.to(self.args.device), y.to(self.args.device)
 
                     pred = model(x)
+                    if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
+                        y= y.flatten() # for CEL
                     loss = loss_func(pred,y)
 
-                    epoch_loss_test+= loss.item()
+                    modelmetrics.update_batch_level(loss.item(), pred, y, level = Levels.TEST)
 
         
 
-            print('Epoch', epoch, 'Train Loss', epoch_loss, 'Test Loss', epoch_loss_test)
-            losses.append(epoch_loss)
-            losses_test.append(epoch_loss_test)
-        
+            modelmetrics.update_epoch_level()
+            print('Epoch', epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
+            modelmetrics.initalize_metric_trackers() # reset metrics for next epoch 
 
 
-        model_state = {
-            'args': self.args, 
-            # 'epochs'; epoch count , 
-            'losses': losses, 
-            'losses_test' : losses_test, 
-        }
+        model_state = model_state_class.save_model_state(model, optimizer, modelmetrics)
 
         self.logger.debug('model training complete ')
         return model_state 

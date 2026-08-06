@@ -42,13 +42,13 @@ class Driver:
         # then, do model building 
             # this is where the branching off has to be done 
             # build modular code so that i can reuse sections as needed 
-        self.modelhelper.model_chooser()
+        self.modelhelper.driver()
 
         self.logger.debug('pipeline for data and model finished')
 
     def build_code(self): 
         self.logger.debug('work on section - NOT full pipeline: modelhelper')
 
-        self.modelhelper.model_chooser()
+        self.modelhelper.driver()
 
         pass 

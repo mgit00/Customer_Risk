@@ -1,6 +1,7 @@
 from utils import Utils 
 from models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
 from train import Train 
+from plotting import Plotting
 
 import torch 
 from sklearn.model_selection import train_test_split
@@ -104,6 +105,7 @@ class ModelHelper:
         self.logger= logging.getLogger(self.args.logger_name)
 
         self.train_class= Train(self.args)
+        self.plotting_class = Plotting(self.args)
 
     def load_data(self) -> dict: # return train, test for x, y 
         '''
@@ -121,6 +123,7 @@ class ModelHelper:
         # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
         x = torch.tensor(x.values, dtype = torch.float32) # float32 = default for pytorch models/model layers 
         y = torch.tensor(y.values, dtype= torch.long if self.args.output_mode == 'classification' else torch.float32)
+       
 
         trainx, testx, trainy, testy = train_test_split(x, y, test_size=.3, random_state= 1, shuffle = True)
             # random state makes it replicable 
@@ -266,10 +269,17 @@ class ModelHelper:
 
         return model_state
 
-    # def driver(self): 
-    #     # call model_chooser, returns model_state 
-    #     # plot the model_state training info 
-    #     pass 
+    def driver(self) -> None: 
+        # call model_chooser, returns model_state 
+        model_state = self.model_chooser()
+
+        # save model state 
+        Utils.save_model(location = self.args.model_filename, model_state= model_state)
+
+        # plot the model_state training info 
+        self.plotting_class.nn_plotting(model_state)
+
+        return  
 
     def slp_chosen(self) -> dict: # model state 
         '''

@@ -39,6 +39,7 @@ modelhelper = parser.add_argument_group(title='args for modelhelper.py')
 modelhelper.add_argument('--batch_size', default = 1000, type = int, help = 'batch size for dataloader- smaller batches mean less memory, but noisy ')
 modelhelper.add_argument('--model_type', choices =['slp', 'fnn', 'kmeans+fnn', 'autoencoder+kmeans+fnn'], default = 'slp', help = 'model type to choose from')
 modelhelper.add_argument('--hidden_sizes', nargs= '+', type= int, default= [30, 20], help= 'list of hidden sizes for the hidden layers')
+modelhelper.add_argument('--model_filename', default = 'model_info/saved_models/model.pt', help= 'location of saved model')
 
 train= parser.add_argument_group(title = 'args for train.py training loop ')
 train.add_argument('--lr', default = .0001, type = float)
@@ -47,6 +48,8 @@ train.add_argument('--epochs', default = 3, type= int )
 models = parser.add_argument_group(title = 'args for models.py')
 models.add_argument('--k_value', default = 11, type = int, help = 'int > 0, number of clusters for kmeans models')
 
+plotting= parser.add_argument_group(title='args for plotting')
+plotting.add_argument('--plot_filepath', default = 'images/nn_plots/')
 
 args= parser.parse_args()
 
@@ -55,9 +58,14 @@ args= parser.parse_args()
 if args.automatic_file_naming: 
     # args.data_pipeline stays the same 
     args.data_filename = 'model_info/data_processing/data' + '_'+ args.output_mode + '.csv'
+    args.model_filename= 'model_info/saved_models/model' + '_' + args.output_mode + '_' + args.model_type + '.pt'
+    args.plot_filepath = 'images/nn_plots/' + args.model_type + '/' + args.output_mode+ '_'  # the last filename is ignored, so add this for correct path 
 
-# if filenames don't exist, make them
-Utils.make_path([args.data_pipeline, args.data_filename])
+# if filenames/paths don't exist, make them
+Utils.make_path([args.data_pipeline,
+                  args.data_filename, 
+                  args.model_filename, 
+                  args.plot_filepath])
 
 
 
