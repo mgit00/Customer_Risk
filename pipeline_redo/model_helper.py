@@ -14,90 +14,9 @@ class ModelHelper:
     model helper class to implement needed functions for train.py 
     - load + split data into x and y 
     - create dataloader objects 
-    - determined by the model specified 
+        - determined by the model specified 
 
     the sequence of the functions called are dependent on the model selected 
-    - fnn and slp 
-        load data 
-        make dataloader
-        train.py -> model.py
-
-    - kmeans + fnn 
-        # load data 
-        # train kmeans on xtrain --> xtrain+clusters 
-        # make dataloader with xtrain+clusters 
-        # train.py -> model.py 
-    
-        # or 
-        # do below, makes code easier and more modular 
-            # easy to build upon later on 
-
-        load data 
-        train kmeans on xtrain -> trained kmeans model 
-        make dataloader with xtrain
-        train.py -> model.py 
-            model gets xtrain data, predicts on trained kmeans, passes to nn layers 
-    
-    - autoencoder + kmeans + fnn 
-        load data 
-        make dataloader 
-        train.py -> model.py 
-            autoencoder 
-        
-        predict on entire xtrain data (to get compressed embeddings)
-            -> use to train kmeans model 
-
-        return to xtrain data! 
-        make dataloader 
-        train.py -> model.py 
-            fnn (pred on AE for embeddings, pred on kmeans for clusters, pred on fnn )
-
-
-    RETHINKING APPROACH: 
-    this means that pred will be called for number of epochs * data divided by num batches 
-    which means that it will be computationally expensive 
-    instead seperate out pipelines for each model 
-        so you dont have to predict on trained autoencoder and kemans model for each train epoch of the fnn 
-    
-    however, for the predicting portion of the pipeline, i will have to do this 
-
-    so, for training, do: 
-    - fnn and slp 
-        load data 
-        make dataloader
-        train.py -> model.py
-
-    - kmeans + fnn 
-        load data 
-        train kmeans on xtrain --> xtrain+clusters 
-        make dataloader with xtrain+clusters 
-        train.py -> model.py 
-
-    - autoencoder + kmeans + fnn 
-        load data 
-        make dataloader 
-        train.py -> model.py 
-            autoencoder (training)
-        
-        predict xtrain with trained autoencoder (full data, to get compressed embeddings) -> xtrain_embeddings
-            -> use to train kmeans model 
-        kmeans model training -> xtrain_embeddings+clusters 
-
-        make dataloader with xtrain_embeddings+clusters 
-        train.py -> model.py 
-            fnn 
-
-    
-    for predicting do: 
-        load data 
-        make dataloader 
-        train.py -> model.py 
-            call predict() for each model to call on the different steps for each model 
-    
-
-    better workflow done below :)
-
-
     '''
 
     def __init__(self, args): 
@@ -106,6 +25,18 @@ class ModelHelper:
 
         self.train_class= Train(self.args)
         self.plotting_class = Plotting(self.args)
+
+    def driver(self) -> None: 
+        # call model_chooser, returns model_state 
+        model_state = self.model_chooser()
+
+        # save model state 
+        Utils.save_model(location = self.args.model_filename, model_state= model_state)
+
+        # plot the model_state training info 
+        self.plotting_class.nn_plotting(model_state)
+        return
+    
 
     def load_data(self) -> dict: # return train, test for x, y 
         '''
@@ -174,6 +105,8 @@ class ModelHelper:
         
         self.logger.info('completed training for: '+self.args.model_type)
         return model_state 
+    
+    #### -- models are below 
     
     def autoencoder_kmeans_fnn_chosen(self) -> dict: # model state  
         '''
@@ -269,17 +202,7 @@ class ModelHelper:
 
         return model_state
 
-    def driver(self) -> None: 
-        # call model_chooser, returns model_state 
-        model_state = self.model_chooser()
-
-        # save model state 
-        Utils.save_model(location = self.args.model_filename, model_state= model_state)
-
-        # plot the model_state training info 
-        self.plotting_class.nn_plotting(model_state)
-
-        return  
+      
 
     def slp_chosen(self) -> dict: # model state 
         '''

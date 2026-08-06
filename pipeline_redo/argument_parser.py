@@ -68,8 +68,6 @@ Utils.make_path([args.data_pipeline,
                   args.plot_filepath])
 
 
-
-
 for arg in args.__dict__.items(): 
     print(arg)
 

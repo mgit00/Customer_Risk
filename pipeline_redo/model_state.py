@@ -47,7 +47,7 @@ class ModelState:
         
 
     @typechecked
-    def save_model_state(self,  model, optimizer, modelmetrics: ModelMetrics ): 
+    def preserve_model_state(self,  model, optimizer, modelmetrics: ModelMetrics ): 
         '''
         saves and returns current model state 
         '''
@@ -76,7 +76,7 @@ class ModelState:
     def loading_model_state(self, model_state) -> dict: 
         '''
         loads in the model 
-        model state should have right info in it to start with, guanteed with running save_model_state
+        model state should have right info in it to start with, guanteed with running preserve_model_state
         '''
 
         for key,value in model_state.items(): 

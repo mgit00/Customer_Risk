@@ -54,6 +54,7 @@ class DataProcessing:
         self.logger.info('x, y data saved to: '+ self.args.data_filename)
 
 
+    ### processing pipelines 
     def customer_risk_processing(self, records ): 
         '''
         the risk score is calculated 
@@ -103,12 +104,7 @@ class DataProcessing:
         pipeline requires fit(x, y = None), whereas LabelEncoder().fit(x)
         this is because labelencoder is meant to be used for y target feature, whereas ordinalencoder is supposed to be used with x input data
         this means, I have to create a wrapper for the label encoder for this to work or i can just use ordinal encoder 
-
-
-        OCCUPATION_TYPE <<-- shoudl be 1 hot encoded ....
-
         '''
-
         
         encoder = self.encoder_pipeline()
         scaler= self.scaler_pipeline()
@@ -128,6 +124,19 @@ class DataProcessing:
         return apps, pipeline 
     
 
+    def join_data(self, customer_risk, applications) -> pd.DataFrame: 
+        ''' 
+        merge the data based on id 
+        - note that mergeing is for columns and join is for indecies 
+        '''
+        res = customer_risk.merge(applications, on='ID', how= 'inner') 
+        # drop the ID column later on in the process 
+
+        self.logger.debug('full joined x,y data done')
+        return res 
+
+
+    ### different sub-pipelines for cc_applications processing
     def encoder_pipeline(self): 
         '''
         this creates the pipeline for encoding the cols 
@@ -265,7 +274,7 @@ class DataProcessing:
         return columntransformer 
 
 
-
+    ### pipeline just used for testing  
     def encoder_pipeline_simple(self): 
         '''
         this creates the pipeline for encoding the cols 
@@ -304,17 +313,7 @@ class DataProcessing:
         return column_transformer
 
 
-    def join_data(self, customer_risk, applications) -> pd.DataFrame: 
-        ''' 
-        merge the data based on id 
-        - note that mergeing is for columns and join is for indecies 
-        '''
-        res = customer_risk.merge(applications, on='ID', how= 'inner') 
-        # drop the ID column later on in the process 
-
-        self.logger.debug('full joined x,y data done')
-        return res 
-
+    
 
     
 

@@ -54,6 +54,7 @@ class Plotting:
         return 
     
     def plot_accuracy(self, state): 
+        ''' for cel loss '''
         # create the plot 
         plt.plot(range(state['epochs']), state['losses'], label = 'Train Losses' )
         plt.plot(range(state['epochs']), state['testlosses'], label = 'Test Losses' )
@@ -70,6 +71,7 @@ class Plotting:
         return 
 
     def plot_f1score(self,state): 
+        ''' for cel loss '''
         # create the plot 
         plt.plot(range(state['epochs']), state['losses'], label = 'Train Losses' )
         plt.plot(range(state['epochs']), state['testlosses'], label = 'Test Losses' )

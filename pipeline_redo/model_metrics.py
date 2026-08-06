@@ -39,7 +39,11 @@ class ModelMetrics:
         self.mode = mode.value # mse or cel 
         self.logger = logging.getLogger(self.args.logger_name)
 
+    ### epoch level 
     def initialize_metrics(self):
+        '''
+        initializes metrics for the entire training loop 
+        '''
         self.losses = []
         self.losses_test = []
 
@@ -55,6 +59,24 @@ class ModelMetrics:
         self.logger.debug('metrics are initialized')
         return 
 
+    def update_epoch_level(self): 
+        '''
+        epoch level updates
+        '''
+        self.losses.append(self.epoch_loss)
+        self.losses_test.append(self.epoch_loss_test)
+
+        if self.mode == 'cel': 
+            self.accuracy.append(self.accuracy_metric.compute())
+            self.accuracy_test.append(self.accuracy_metric_test.compute())
+
+            self.f1score.append(self.f1_metric.compute())
+            self.f1score_test.append(self.f1_metric_test.compute())
+
+        # reset in train loop (initalize_metric_trackers())
+        return 
+
+    ### dataloader level 
     def initalize_metric_trackers(self): 
         '''
         initialize classification metrics
@@ -94,22 +116,4 @@ class ModelMetrics:
             if self.mode == 'cel': 
                 self.accuracy_metric_test.update(pred, target)
                 self.f1_metric_test.update(pred, target)
-
-    def update_epoch_level(self): 
-        '''
-        epoch level updates
-        '''
-        self.losses.append(self.epoch_loss)
-        self.losses_test.append(self.epoch_loss_test)
-
-        if self.mode == 'cel': 
-            self.accuracy.append(self.accuracy_metric.compute())
-            self.accuracy_test.append(self.accuracy_metric_test.compute())
-
-            self.f1score.append(self.f1_metric.compute())
-            self.f1score_test.append(self.f1_metric_test.compute())
-
-        # reset in train loop (initalize_metric_trackers())
-        return 
-
 

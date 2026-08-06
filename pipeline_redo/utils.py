@@ -11,7 +11,7 @@ class Utils:
     '''
     helper functions which can be reused as needed 
     '''
-
+    ### data 
     @staticmethod
     def save_df(df:pd.DataFrame, filename): 
         df.to_csv(filename, index = False  )
@@ -20,6 +20,8 @@ class Utils:
     def read_data(filename) -> pd.DataFrame: 
         return pd.read_csv(filename)
 
+
+    ### pipelines
     @staticmethod
     def pipeline_creator(steps_list:list): 
         pipeline= Pipeline(steps= steps_list )
@@ -43,6 +45,8 @@ class Utils:
 
         return pipeline 
 
+
+    ### models 
     @staticmethod
     def save_model(location, model_state): 
         torch.save(model_state, location) 
@@ -54,6 +58,8 @@ class Utils:
         print('model loaded in from: ', location)
         return model_state
 
+
+    ### paths 
     @staticmethod 
     def make_path(location_list: list) -> None: 
         for location in location_list: 

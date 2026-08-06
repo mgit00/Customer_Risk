@@ -45,6 +45,7 @@ class Driver:
         self.modelhelper.driver()
 
         self.logger.debug('pipeline for data and model finished')
+        return 
 
     def build_code(self): 
         self.logger.debug('work on section - NOT full pipeline: modelhelper')

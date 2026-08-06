@@ -126,3 +126,86 @@ to prevent the gradients from being backpropogated, there are 3 things that can 
     - f1 score test 
 
 - rework how to deal with metrics 
+
+
+# ignored, but kept for notes: 
+- fnn and slp 
+        load data 
+        make dataloader
+        train.py -> model.py
+
+    - kmeans + fnn 
+        # load data 
+        # train kmeans on xtrain --> xtrain+clusters 
+        # make dataloader with xtrain+clusters 
+        # train.py -> model.py 
+    
+        # or 
+        # do below, makes code easier and more modular 
+            # easy to build upon later on 
+
+        load data 
+        train kmeans on xtrain -> trained kmeans model 
+        make dataloader with xtrain
+        train.py -> model.py 
+            model gets xtrain data, predicts on trained kmeans, passes to nn layers 
+    
+    - autoencoder + kmeans + fnn 
+        load data 
+        make dataloader 
+        train.py -> model.py 
+            autoencoder 
+        
+        predict on entire xtrain data (to get compressed embeddings)
+            -> use to train kmeans model 
+
+        return to xtrain data! 
+        make dataloader 
+        train.py -> model.py 
+            fnn (pred on AE for embeddings, pred on kmeans for clusters, pred on fnn )
+
+
+    RETHINKING APPROACH: 
+    this means that pred will be called for number of epochs * data divided by num batches 
+    which means that it will be computationally expensive 
+    instead seperate out pipelines for each model 
+        so you dont have to predict on trained autoencoder and kemans model for each train epoch of the fnn 
+    
+    however, for the predicting portion of the pipeline, i will have to do this 
+
+    so, for training, do: 
+    - fnn and slp 
+        load data 
+        make dataloader
+        train.py -> model.py
+
+    - kmeans + fnn 
+        load data 
+        train kmeans on xtrain --> xtrain+clusters 
+        make dataloader with xtrain+clusters 
+        train.py -> model.py 
+
+    - autoencoder + kmeans + fnn 
+        load data 
+        make dataloader 
+        train.py -> model.py 
+            autoencoder (training)
+        
+        predict xtrain with trained autoencoder (full data, to get compressed embeddings) -> xtrain_embeddings
+            -> use to train kmeans model 
+        kmeans model training -> xtrain_embeddings+clusters 
+
+        make dataloader with xtrain_embeddings+clusters 
+        train.py -> model.py 
+            fnn 
+
+    
+    for predicting do: 
+        load data 
+        make dataloader 
+        train.py -> model.py 
+            call predict() for each model to call on the different steps for each model 
+    
+
+    better workflow done below :) 
+

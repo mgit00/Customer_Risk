@@ -44,22 +44,26 @@ class Train:
         - also deals with creating model state at end of training 
         - keeps track of model training/ model metrics 
 
-        to keep track of model metrics: make new function 
-        - loss tracker 
-        - accuracy 
-        - f1 
+        to keep track of model metrics: make new function (ModelMetrics)
+        this creates an interface to track the metrics 
+            - loss tracker 
+            - accuracy 
+            - f1 
         '''
+
         self.logger.debug('in training loop ')
 
         self.args.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.logger.info('device used: ' + str(self.args.device) ) # torch.cuda.current_device() gives integer 
 
+        ''' data and model setting up '''
         train_dataloader, test_dataloader = data 
-        # place data on device when iterating 
 
+        # place data on device when iterating, this places batch on device to save memory
 
         # place model on device 
         model= model.to(self.args.device)
+
         # ensure that all params have gradient computations enabled 
             # this can be false for fnn of autoencoder kemans fnn model since autoencoder shouldn't be trained anymore
         self.logger.debug('all model params require gradient: '+ str(all(param.requires_grad for param in model.parameters())))
@@ -70,16 +74,20 @@ class Train:
         # get loss function CEL or MSEL based on classification or regression 
         loss_func = self.get_loss_func(model_name= model.__class__.__name__)
 
-        # initialize model state 
-        model_state_class = ModelState(self.args) # init to empty 
 
+        ''' model metrics and state are initialized ''' 
         # initlalize model metrics 
         mode = LossFunc.MSE if loss_func.__class__.__name__ == 'MSELoss' else LossFunc.CrossEntropyLoss
         modelmetrics= ModelMetrics(self.args, mode = mode )
         modelmetrics.initialize_metrics()
         modelmetrics.initalize_metric_trackers()
 
-        # do training loop 
+         # initialize model state 
+        model_state_class = ModelState(self.args) # init to empty 
+
+
+        ''' train loop '''
+        ### do training loop 
         for epoch in range(self.args.epochs): 
 
             model.train()
@@ -89,6 +97,7 @@ class Train:
                 x,y = x.to(self.args.device), y.to(self.args.device)
                 
                 pred = model(x)
+
                 if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                     y= y.flatten() # for CEL
                 loss = loss_func(pred, y) 
@@ -106,6 +115,7 @@ class Train:
                     x,y = x.to(self.args.device), y.to(self.args.device)
 
                     pred = model(x)
+
                     if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                         y= y.flatten() # for CEL
                     loss = loss_func(pred,y)
@@ -114,12 +124,12 @@ class Train:
 
         
 
-            modelmetrics.update_epoch_level()
+            modelmetrics.update_epoch_level() # calculate the metrics at the end of this epoch 
             print('Epoch', epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
             modelmetrics.initalize_metric_trackers() # reset metrics for next epoch 
 
 
-        model_state = model_state_class.save_model_state(model, optimizer, modelmetrics)
+        model_state = model_state_class.preserve_model_state(model, optimizer, modelmetrics)
 
         self.logger.debug('model training complete ')
         return model_state 
