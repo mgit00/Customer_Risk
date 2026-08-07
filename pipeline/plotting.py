@@ -4,7 +4,7 @@ from pathlib import Path
 
 class Plotting: 
     def __init__(self, args): 
-        self.args = args 
+        self.args = args  
 
     def kmeans_elbow_curve(self, intertias): 
         kstart, kend = self.args.k_values 
