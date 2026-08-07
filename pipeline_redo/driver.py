@@ -53,7 +53,5 @@ class Driver:
     def build_code(self): 
         self.logger.debug('work on section - NOT full pipeline: modelhelper')
 
-        # self.modelhelper.driver()
-        self.clustering.driver()
-
+        self.modelhelper.driver()
         pass 
