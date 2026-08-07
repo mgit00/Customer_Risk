@@ -1,5 +1,6 @@
 from data_processing import DataProcessing
 from model_helper import ModelHelper
+from clustering import Clustering
 
 import logging 
 
@@ -15,6 +16,7 @@ class Driver:
 
         # initialize classes as needed 
         self.dataprocessingclass = DataProcessing(self.args)
+        self.clustering = Clustering(self.args)
         self.modelhelper = ModelHelper(self.args)
         
 
@@ -38,6 +40,7 @@ class Driver:
             # save the joined data (split as needed further down the pipeline )
         self.dataprocessingclass.complete_data_processing()
 
+        self.clustering.driver()
 
         # then, do model building 
             # this is where the branching off has to be done 
@@ -50,6 +53,7 @@ class Driver:
     def build_code(self): 
         self.logger.debug('work on section - NOT full pipeline: modelhelper')
 
-        self.modelhelper.driver()
+        # self.modelhelper.driver()
+        self.clustering.driver()
 
         pass 

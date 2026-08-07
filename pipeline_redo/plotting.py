@@ -13,6 +13,19 @@ class Plotting:
         self.args= args 
 
         self.logger= logging.getLogger(self.args.logger_name)
+    
+    def kmeans_elbow_curve(self, intertias): 
+        kstart, kend = self.args.k_values 
+        x = range(kstart, kend + 1)
+        y  = intertias 
+
+        plt.plot(x, y)
+        plt.title('Elbow Curve for KMeans')
+        plt.xlabel('Number of Clusters')
+        plt.xticks(x, rotation= 45)
+        plt.savefig(self.args.elbow_curve_for_kmeans)
+        self.logger.info('kmeansplot saved to: ' + self.args.elbow_curve_for_kmeans)
+        plt.show ()
 
     def nn_plotting(self, state): 
         '''

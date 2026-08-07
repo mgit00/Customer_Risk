@@ -143,3 +143,4 @@ class AutoencoderKmeansFNN(nn.Module):
         # apply fnn 
         res= self.fnn(embedding )
         return res 
+

@@ -50,7 +50,11 @@ models = parser.add_argument_group(title = 'args for models.py')
 models.add_argument('--k_value', default = 11, type = int, help = 'int > 0, number of clusters for kmeans models')
 
 plotting= parser.add_argument_group(title='args for plotting')
-plotting.add_argument('--plot_filepath', default = 'images/nn_plots/')
+plotting.add_argument('--plot_filepath', default = 'images/nn_plots/', help = 'base location')
+plotting.add_argument('--elbow_curve_for_kmeans', default = 'images/kmeans_plots/elbow_curve_for_kmeans.png', help = 'full location ')
+
+clustering = parser.add_argument_group(title='args for clustering')
+clustering.add_argument('--k_values' , nargs= 2, default = [2, 30], type= int, help= 'the starting and ending k values to plot the elbow curve for. min of 1 cluster' )
 
 args= parser.parse_args()
 
@@ -66,7 +70,8 @@ if args.automatic_file_naming:
 Utils.make_path([args.data_pipeline,
                   args.data_filename, 
                   args.model_filename, 
-                  args.plot_filepath])
+                  args.plot_filepath, 
+                  args.elbow_curve_for_kmeans])
 
 
 for arg in args.__dict__.items(): 
