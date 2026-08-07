@@ -53,3 +53,4 @@ this requires that the trained kmeans and autoencoder models are kept as instanc
 
 # redone pipeline
 python pipeline_redo/argument_parser.py --run_pipeline --model_type autoencoder+kmeans+fnn --output_mode regression 
+figure out how to integrate in the kmeans model, in model_helper??
