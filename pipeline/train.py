@@ -127,7 +127,7 @@ class Train:
             epoch_loss_test = 0 
 
             model.train()
-            for x, y, in train_loader: 
+            for x, y, in train_loader:  
                 # place x,y onto gpu 
                 x= x.to(self.args.device)
                 y= y.to(self.args.device)

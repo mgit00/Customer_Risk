@@ -8,7 +8,7 @@ from plotting import Plotting
 
 class Driver: 
     '''
-    interface which interacts with the directory 
+    interface which does main interactions with the directory 
     this keeps interactions with directory easy to follow
     '''
     def __init__(self, args): 
@@ -94,44 +94,52 @@ class Driver:
         # plot the results 
         self.plotting.kmeans_elbow_curve(intertias)
 
-
-
-    def building_model(self) : 
+    def building_model(self): 
         '''
-        here will be different types of models which will be built: 
-        - regular fnn 
-        - k means (clusters) + fnn 
-        - autoencoder + k means (clusters) + fnn 
+        this is the redone building model class 
+        this will call modelhelper to get the model training started 
+        '''
 
-        the building pipeline for each model will be as follows: 
-        - driver (checks right hyperparamters with lodaded model, initalizes model, calls training loop) 
-        - model (contians the 3 models that you can call )
-        - training (contains the training loop)
-        - plotting 
+        ModelHelper()
+
+    # def building_model(self) : 
+    #     '''
+    #     here will be different types of models which will be built: 
+    #     - regular fnn 
+    #     - k means (clusters) + fnn 
+    #     - autoencoder + k means (clusters) + fnn 
+
+    #     the building pipeline for each model will be as follows: 
+    #     - driver (checks right hyperparamters with lodaded model, initalizes model, calls training loop) 
+    #     - model (contians the 3 models that you can call )
+    #     - training (contains the training loop)
+    #     - plotting 
         
-        loading and saving model will be done here in pipeline (keeps interactions with directory easy to follow)
-        plots will be saved here too, since this is used to interact with the directory 
-        '''
+    #     loading and saving model will be done here in pipeline (keeps interactions with directory easy to follow)
+    #     plots will be saved here too, since this is used to interact with the directory 
+    #     '''
 
-        modelhelper= ModelHelper(self.args, Utils.load_model(self.args.loaded_model) if self.args.loaded_model else None ) # check if there is an existing model which should be trained upon 
+    #     modelhelper= ModelHelper(self.args, Utils.load_model(self.args.loaded_model) if self.args.loaded_model else None ) # check if there is an existing model which should be trained upon 
 
-        # read data from directory, based on args 
-        data = Utils.read_data(self.args.data)
-        train_test_dataloaders= modelhelper.load_data(data)
+    #     # read data from directory, based on args 
+    #     data = Utils.read_data(self.args.data)
+    #     train_test_dataloaders= modelhelper.load_data(data)
     
-        # train model 
-        model_state= modelhelper.training(train_test_dataloaders)
+    #     # train model 
+    #     model_state= modelhelper.training(train_test_dataloaders)
         
-        # save model 
-        Utils.save_model(self.args.saved_model, model_state)
+    #     # save model 
+    #     Utils.save_model(self.args.saved_model, model_state)
 
-        # plot, and save plot 
-        self.plotting.nn_plotting(model_state)
+    #     # plot, and save plot 
+    #     self.plotting.nn_plotting(model_state)
         
 
 
-        # layout how the code structure for the model building should be in .md file ... 
-        pass 
+    #     # layout how the code structure for the model building should be in .md file ... 
+    #     pass 
+
+
 
     def predicting(self): 
         '''

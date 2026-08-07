@@ -102,3 +102,110 @@ inorder to deal with kmeans, a k has to be chosen first
     
 ### notes: 
 - the reason why this is a classification problem rather than regression is that the regression model does not have enough samples to train on. it is possibly (?) easier to train on a classifyer rather than a regressor. 
+
+
+### autoencoder model 
+for the autoencoder kmeans fnn model , the last training loop which deals with the fnn model has to be adjusted a bit 
+because the model also contains the autoencoder layers, backpropating the loss gradients will also lead to the autoencoder's layers being updated. this shouldn't happen ideally bcause the autoencoder should already be fully trained. 
+
+to prevent the gradients from being backpropogated, there are 3 things that can be done: 
+1) freeze the params (anytime before training loop?)
+2) detatch the output tensor (in the forward() function )
+3) exclude the autoencoder params from the optimizer 
+
+
+### now ... 
+- need to save model state or atleast get it back to start plotting 
+- return 
+    - args 
+    - losses 
+    - losses test 
+    - accuracy 
+    - accuracy test 
+    - f1 score 
+    - f1 score test 
+
+- rework how to deal with metrics 
+
+
+# ignored, but kept for notes: 
+- fnn and slp 
+        load data 
+        make dataloader
+        train.py -> model.py
+
+    - kmeans + fnn 
+        # load data 
+        # train kmeans on xtrain --> xtrain+clusters 
+        # make dataloader with xtrain+clusters 
+        # train.py -> model.py 
+    
+        # or 
+        # do below, makes code easier and more modular 
+            # easy to build upon later on 
+
+        load data 
+        train kmeans on xtrain -> trained kmeans model 
+        make dataloader with xtrain
+        train.py -> model.py 
+            model gets xtrain data, predicts on trained kmeans, passes to nn layers 
+    
+    - autoencoder + kmeans + fnn 
+        load data 
+        make dataloader 
+        train.py -> model.py 
+            autoencoder 
+        
+        predict on entire xtrain data (to get compressed embeddings)
+            -> use to train kmeans model 
+
+        return to xtrain data! 
+        make dataloader 
+        train.py -> model.py 
+            fnn (pred on AE for embeddings, pred on kmeans for clusters, pred on fnn )
+
+
+    RETHINKING APPROACH: 
+    this means that pred will be called for number of epochs * data divided by num batches 
+    which means that it will be computationally expensive 
+    instead seperate out pipelines for each model 
+        so you dont have to predict on trained autoencoder and kemans model for each train epoch of the fnn 
+    
+    however, for the predicting portion of the pipeline, i will have to do this 
+
+    so, for training, do: 
+    - fnn and slp 
+        load data 
+        make dataloader
+        train.py -> model.py
+
+    - kmeans + fnn 
+        load data 
+        train kmeans on xtrain --> xtrain+clusters 
+        make dataloader with xtrain+clusters 
+        train.py -> model.py 
+
+    - autoencoder + kmeans + fnn 
+        load data 
+        make dataloader 
+        train.py -> model.py 
+            autoencoder (training)
+        
+        predict xtrain with trained autoencoder (full data, to get compressed embeddings) -> xtrain_embeddings
+            -> use to train kmeans model 
+        kmeans model training -> xtrain_embeddings+clusters 
+
+        make dataloader with xtrain_embeddings+clusters 
+        train.py -> model.py 
+            fnn 
+
+    
+    for predicting do: 
+        load data 
+        make dataloader 
+        train.py -> model.py 
+            call predict() for each model to call on the different steps for each model 
+    
+
+    better workflow done below :) 
+
