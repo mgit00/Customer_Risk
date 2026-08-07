@@ -2,6 +2,7 @@ from utils import Utils
 from models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
 from train import Train 
 from plotting import Plotting
+from train import ModelInfoBundle
 
 import torch 
 from sklearn.model_selection import train_test_split
@@ -78,6 +79,10 @@ class ModelHelper:
             # epoch goes over entire dataset 
 
         self.logger.info('tensordataset is batched and shuffled with dataloader')
+
+        self.args.input_size = next(iter(train))[0].shape[1] 
+        self.args.ouput_size =  5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        self.logger.info('input size: '+ self.args.input_size+ ' hidden sizes: ' + self.args.hidden_sizes + ' output_size: ' + self.args.output_size)
         return train_loader, test_loader 
 
     def model_chooser(self) -> dict: # model state  
@@ -106,6 +111,8 @@ class ModelHelper:
         self.logger.info('completed training for: '+self.args.model_type)
         return model_state 
     
+
+
     #### -- models are below, calls train() from these functoins 
     
     def autoencoder_kmeans_fnn_chosen(self) -> dict: # model state  
@@ -127,27 +134,32 @@ class ModelHelper:
         train_autoencoder, test_autoencoder = self.make_dataloader(autoencoder_data) # target as the input itself
 
         # initalize model 
-        input_size = next(iter(train))[0].shape[1] 
-        hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
-        model = AutoencoderKmeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
+        # input_size = next(iter(train))[0].shape[1] 
+        # hidden_sizes = self.args.hidden_sizes 
+        # output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        model = AutoencoderKmeansFNN(self.args.k_value, self.args.input_size, self.args.hidden_sizes, self.args.output_size)
         self.logger.info('autoencoder means fnn model is made: '+ str(model))
+
+        model_info_bundle= ModelInfoBundle(model = model)
+        self.logger.debug('model info bundle is made ')
 
 
         ### autoencoder section (get the sub model though the main model)
         self.logger.debug('train autoencoder')
         # initalize the model 
-        autoencoder_model = model.autoencoder
+        # autoencoder_model = model_info_bundle.model.autoencoder # autoencoder_model = model.autoencoder
         # pass train dataloader to train loop to train the model 
             # the target is the same as the input for autoencoder
             # loss func should be mse 
-        autoencoder_model_state = self.train_class.train(data= (train_autoencoder, test_autoencoder), model = autoencoder_model )
+        autoencoder_model_state = self.train_class.train(data= (train_autoencoder, test_autoencoder), 
+                                                         model = model_info_bundle.model., 
+                                                         optimizer )
         self.logger.info('autoencoder trained')
 
         ### kmneans section 
         self.logger.debug('train kmeans')
         # initalize model 
-        kmeans_model = model.kmeans
+        kmeans_model = model_info_bundle.model.kmeans
          # get embeddings from autoencoder 
         embeddings = autoencoder_model.predict_embedding(data['trainx'])
         # train model on entire data embeddings 
@@ -162,7 +174,7 @@ class ModelHelper:
         # freeze params of autoencoder so backprop doesn't update layers 
         self.train_class.freeze_params(autoencoder_model)
         # train loop applied to dataloader data 
-        model_state = self.train_class.train(data = (train, test), model = model )
+        model_state = self.train_class.train(data = (train, test), model = model_info_bundle.model )
         # within the model, forward is used to get predictions from autoencoder and kmeans 
         self.logger.info('autoencoder kmeans fnn model trained')
 
@@ -184,7 +196,7 @@ class ModelHelper:
         train,test = self.make_dataloader(data)
 
         # get layer sizes 
-        input_size = next(iter(train))[0].shape[1] + 1 # since cluster labels will be added in model 
+        input_size = next(iter(train))[0].shape[1] 
         hidden_sizes = self.args.hidden_sizes 
         output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
          

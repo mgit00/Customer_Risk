@@ -49,7 +49,7 @@ class FNN(nn.Module):
 
 class KMeansFNN(nn.Module): 
     '''this combines the kmeans and fnn model'''
-    def __init__(self, k_value, adjusted_input_size, hidden_sizes, output_size):
+    def __init__(self, k_value, input_size, hidden_sizes, output_size):
         '''
         input size adjusted for the cluster labels
         ''' 
@@ -57,7 +57,7 @@ class KMeansFNN(nn.Module):
 
         self.kmeans = KMeans(n_clusters=k_value, random_state= 1 )
 
-        self.fnn = FNN(adjusted_input_size, hidden_sizes, output_size)
+        self.fnn = FNN(input_size + 1, hidden_sizes, output_size) # since cluster labels will be added in model 
     
     def train_kmeans(self, fulldata) -> None : # full x train data 
         self.kmeans.fit(fulldata)

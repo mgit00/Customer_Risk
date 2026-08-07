@@ -7,13 +7,56 @@ from utils import Utils
 from torch.optim import Adam 
 from torch.nn import CrossEntropyLoss, MSELoss 
 
+class ModelInfoBundle: 
+    '''
+    class used to bundle info about model, optimizer and loss function
+    makes code easier to process 
+
+    automatically loads in model if needed 
+
+    interacts with model state 
+    can track not model metrics though, this should be done in train loop and used to change 
+        the model state if needed 
+    '''
+    def __init__(self,args,  model) : 
+        self.args = args 
+        self.model = model 
+            # needs input shape 
+            # hidden sizes (if any, from args )
+            # output shape from args
+        self.optimizer= Adam(model.parameters(), lr = self.args.lr)  
+
+        self.modelstate = ModelState(self.args) # initialize model state 
+
+        if self.args.load_model: 
+            self.load_in_modelstate()
+
+        self.logger= logging.getLogger(self.args.logger_name)
+        self.logger.info('model info bundle made, model loaded in if needed')
+
+
+    def load_in_modelstate(self) -> None : 
+        self.logger.debug('loading in model from: ' + self.args.model_filename)
+        loaded_model = Utils.load_model(self.args.model_filename)
+        loaded_model_state = self.modelstate.loading_model_state(loaded_model)
+        # update state dicts 
+        self.model.load_state_dict(self.modelstate.model_state_dict)
+        self.optimizer.load_state_dict(self.modelstate.optimizer_state_dict)
+        self.logger.info('model loaded in from: ' + self.args.model_filename)
+        return 
+        
+
+
+    
+
+    
 class Train: 
     def __init__(self, args) -> None:
         self.args = args 
         
         self.logger = logging.getLogger(self.args.logger_name)
 
-
+    @staticmethod
     def get_loss_func(self, model_name ): 
         #  if the model is autoencoder, the loss is automatically MSE 
             # since the target is the input 
@@ -36,7 +79,7 @@ class Train:
         for param in submodel.parameters(): 
             param.requires_grad = False 
 
-    def train(self, data: tuple, model) -> dict: # returns model_state  
+    def train(self, data: tuple, model, optimizer) -> dict: # returns model_state  
         '''
         training loop 
         - initializes model, loss func, and optimizer 
@@ -50,6 +93,17 @@ class Train:
             - loss tracker 
             - accuracy 
             - f1 
+        '''
+
+        '''
+        - get device 
+        - place model on device 
+        - init optimizer 
+        - get loss function 
+        
+        - model metrics init (unique to train loop) 
+        - model state <- loading in if needed 
+            - can init at the time of updating as well .... 
         '''
 
         self.logger.debug('in training loop ')
@@ -70,8 +124,8 @@ class Train:
             # this can be false for fnn of autoencoder kemans fnn model since autoencoder shouldn't be trained anymore
         self.logger.debug('all model params require gradient: '+ str(all(param.requires_grad for param in model.parameters())))
         
-        # make optimizer 
-        optimizer = Adam(model.parameters(), lr = self.args.lr)
+        # # make optimizer 
+        # optimizer = Adam(model.parameters(), lr = self.args.lr)
 
         # get loss function CEL or MSEL based on classification or regression 
         loss_func = self.get_loss_func(model_name= model.__class__.__name__)

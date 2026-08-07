@@ -115,17 +115,15 @@ to prevent the gradients from being backpropogated, there are 3 things that can 
 
 
 ### now ... 
-- need to save model state or atleast get it back to start plotting 
-- return 
-    - args 
-    - losses 
-    - losses test 
-    - accuracy 
-    - accuracy test 
-    - f1 score 
-    - f1 score test 
+- how to deal with error with loading in model 
+- have to lead in with loaded model when intiated 
+- get the modelstate updated dict before passedinto train 
+- same for optimizer 
 
-- rework how to deal with metrics 
+- may have to create a new class to laod in model
+- this work has to be done before train is called 
+
+- may need a class to deal with setting up mode, loss func and optimizer 
 
 
 # ignored, but kept for notes: 
