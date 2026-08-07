@@ -44,6 +44,7 @@ modelhelper.add_argument('--model_filename', default = 'model_info/saved_models/
 train= parser.add_argument_group(title = 'args for train.py training loop ')
 train.add_argument('--lr', default = .0001, type = float)
 train.add_argument('--epochs', default = 3, type= int )
+train.add_argument('--load_model', action= 'store_true', help= 'call if wanting to load in model_filename, continue training, and save model to model_filename')
 
 models = parser.add_argument_group(title = 'args for models.py')
 models.add_argument('--k_value', default = 11, type = int, help = 'int > 0, number of clusters for kmeans models')

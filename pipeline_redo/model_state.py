@@ -59,7 +59,7 @@ class ModelState:
         self.optimizer_state_dict= optimizer.state_dict()
 
         self.epochs += len(modelmetrics.losses) ##### have to deal with this... 
-        self.loss_func_mode= modelmetrics.mode 
+        self.loss_func_mode= modelmetrics.mode # string, not instance of LossFunc 
 
         self.losses.extend(modelmetrics.losses )
         self.testlosses.extend(modelmetrics.losses_test )

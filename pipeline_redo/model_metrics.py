@@ -20,6 +20,7 @@ class ModelMetrics:
     class to deal with creating and tracking model training metrics
     - all of this functionality can be kept in train, but this makes the code more flexible and easy to understand 
     - tracks various metrics 
+    
     - initialized in Train.train <- this class is unique to each call of train()
         - does not cover info gained from loading in a model 
 

@@ -106,7 +106,7 @@ class ModelHelper:
         self.logger.info('completed training for: '+self.args.model_type)
         return model_state 
     
-    #### -- models are below 
+    #### -- models are below, calls train() from these functoins 
     
     def autoencoder_kmeans_fnn_chosen(self) -> dict: # model state  
         '''

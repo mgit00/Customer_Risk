@@ -2,6 +2,7 @@ import torch
 import logging 
 from model_metrics import ModelMetrics, LossFunc, Levels
 from model_state import ModelState
+from utils import Utils 
 
 from torch.optim import Adam 
 from torch.nn import CrossEntropyLoss, MSELoss 
@@ -57,6 +58,7 @@ class Train:
         self.logger.info('device used: ' + str(self.args.device) ) # torch.cuda.current_device() gives integer 
 
         ''' data and model setting up '''
+        self.logger.debug('setting up data, model, optimizer, loss function ')
         train_dataloader, test_dataloader = data 
 
         # place data on device when iterating, this places batch on device to save memory
@@ -76,19 +78,32 @@ class Train:
 
 
         ''' model metrics and state are initialized ''' 
-        # initlalize model metrics 
+        self.logger.debug('initializing model metrics and model state class ')
+        # initlalize model metrics, these are never affected by a model being loaded in 
+            # these are specific to 1 call fo this function 
         mode = LossFunc.MSE if loss_func.__class__.__name__ == 'MSELoss' else LossFunc.CrossEntropyLoss
         modelmetrics= ModelMetrics(self.args, mode = mode )
         modelmetrics.initialize_metrics()
-        modelmetrics.initalize_metric_trackers()
 
-         # initialize model state 
+        # initialize model state 
         model_state_class = ModelState(self.args) # init to empty 
+
+        # if needed, read in loaded model and optim state_dicts 
+        if self.args.load_model: 
+            self.logger.debug('loading in model from: ' + self.args.model_filename)
+            loaded_model = Utils.load_model(self.args.model_filename)
+            loaded_model_state = model_state_class.loading_model_state(loaded_model)
+            # update state dicts 
+            model.load_state_dict(model_state_class.model_state_dict)
+            optimizer.load_state_dict(model_state_class.optimizer_state_dict)
+            self.logger.info('model loaded in from: ' + self.args.model_filename)
 
 
         ''' train loop '''
+        self.logger.debug('starting training loop')
         ### do training loop 
         for epoch in range(self.args.epochs): 
+            modelmetrics.initalize_metric_trackers() # reset metrics for this epoch 
 
             model.train()
             # loop through batches from dataloader 
@@ -98,7 +113,7 @@ class Train:
                 
                 pred = model(x)
 
-                if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
+                if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                     y= y.flatten() # for CEL
                 loss = loss_func(pred, y) 
                 
@@ -116,7 +131,7 @@ class Train:
 
                     pred = model(x)
 
-                    if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
+                    if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                         y= y.flatten() # for CEL
                     loss = loss_func(pred,y)
 
@@ -126,10 +141,11 @@ class Train:
 
             modelmetrics.update_epoch_level() # calculate the metrics at the end of this epoch 
             print('Epoch', epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
-            modelmetrics.initalize_metric_trackers() # reset metrics for next epoch 
+            
 
 
         model_state = model_state_class.preserve_model_state(model, optimizer, modelmetrics)
+        self.logger.info('model state creates/updated with training information') 
 
         self.logger.debug('model training complete ')
         return model_state 
