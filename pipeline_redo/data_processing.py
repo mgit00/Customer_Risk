@@ -174,10 +174,6 @@ class DataProcessing:
         remainder= 'passthrough', 
         verbose_feature_names_out= False) # to get og column names (for purpose of getting back pd df )
 
-        # transformer_pipeline= Pipeline(steps=[
-        #     ('data_transform',  column_transformer) # data transformation step 
-        # ])
-
         self.logger.debug('encoder pipeline done ')
         return column_transformer
 

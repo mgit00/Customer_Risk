@@ -37,15 +37,6 @@ class FNN(nn.Module):
         return res 
 
 
-# class KMeansModel: 
-#     def __init__(self, k_value): 
-#         self.model = KMeans(n_clusters= k_value, random_state=1 )
-
-#     def fitting(self, data) -> None : 
-#         self.model.fit(data )
-#         return 
-
-
 
 class KMeansFNN(nn.Module): 
     '''this combines the kmeans and fnn model'''

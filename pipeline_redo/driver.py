@@ -26,7 +26,7 @@ class Driver:
         '''
         this does: 
         data processing 
-        kmeans k choosing <--- TBD 
+        kmeans k choosing  
         model training 
         prediction 
         '''

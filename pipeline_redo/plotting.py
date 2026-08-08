@@ -69,8 +69,8 @@ class Plotting:
     def plot_accuracy(self, state): 
         ''' for cel loss '''
         # create the plot 
-        plt.plot(range(state['epochs']), state['losses'], label = 'Train Losses' )
-        plt.plot(range(state['epochs']), state['testlosses'], label = 'Test Losses' )
+        plt.plot(range(state['epochs']), state['accuracy'], label = 'Train Accuracy' )
+        plt.plot(range(state['epochs']), state['testaccuracy'], label = 'Test Accuracy' )
         
         plt.title('Train and Test Accuracy for: ' + self.args.model_type + ' '  + self.args.output_mode)
         plt.xlabel('Epochs')
@@ -86,8 +86,8 @@ class Plotting:
     def plot_f1score(self,state): 
         ''' for cel loss '''
         # create the plot 
-        plt.plot(range(state['epochs']), state['losses'], label = 'Train Losses' )
-        plt.plot(range(state['epochs']), state['testlosses'], label = 'Test Losses' )
+        plt.plot(range(state['epochs']), state['f1'], label = 'Train F1 Score' )
+        plt.plot(range(state['epochs']), state['testf1'], label = 'Test F1 Score' )
         
         plt.title('Train and Test F1 Score for: ' + self.args.model_type + ' '  + self.args.output_mode)
         plt.xlabel('Epochs')

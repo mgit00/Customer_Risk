@@ -135,14 +135,16 @@ class ModelHelper:
 
 
         ### autoencoder section (get the sub model though the main model)
-        self.logger.debug('train autoencoder')
         # initalize the model 
         autoencoder_model = model.autoencoder
-        # pass train dataloader to train loop to train the model 
-            # the target is the same as the input for autoencoder
-            # loss func should be mse 
-        autoencoder_model_state = self.train_class.train(data= (train_autoencoder, test_autoencoder), model = autoencoder_model )
-        self.logger.info('autoencoder trained')
+        # no need to train on second pass 
+        if not self.args.load_model: 
+            self.logger.debug('train autoencoder')
+            # pass train dataloader to train loop to train the model 
+                # the target is the same as the input for autoencoder
+                # loss func should be mse 
+            autoencoder_model_state = self.train_class.train(data= (train_autoencoder, test_autoencoder), model = autoencoder_model )
+            self.logger.info('autoencoder trained')
 
         ### kmneans section 
         self.logger.debug('train kmeans')

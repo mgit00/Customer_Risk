@@ -140,7 +140,7 @@ class Train:
         
 
             modelmetrics.update_epoch_level() # calculate the metrics at the end of this epoch 
-            print('Epoch', epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
+            print('Epoch', model_state_class.epochs+ epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
             
 
 
