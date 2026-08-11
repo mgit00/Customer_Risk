@@ -7,6 +7,8 @@ from utils import Utils
 
 
 '''
+working code to call from command line
+
 this parser will have subgrouping associated with the file they are used in 
 this makes the parsing easier with the redone pipeline 
 
