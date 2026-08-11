@@ -1,4 +1,9 @@
-# this is the file containing examples command line args
+# running api call 
+to run api call, follow the format given and suggested by default modelbase suggested fastapi (argument_items.py, args.txt)
+
+
+
+## this is the section containing examples command line args -- not needed anymore as FastAPI is used now
 this will be used to show the flexibility in the way that argparse was implemented 
 
 python pipeline_redo/argument_parser.py --run_pipeline --model_type slp --output_mode classification --load_model --epochs 10 
@@ -15,11 +20,11 @@ python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+km
 - loads in the saved model from before 
 
 
-# all models to train 
+### all models to train 
 note the models may have been trained more the number of epochs here 
 
-## regression 
-### slp 
+### regression 
+### slp --DONE
 python pipeline_redo/argument_parser.py --build_code --model_type slp --output_mode regression --epochs 20
 
 python pipeline_redo/argument_parser.py --build_code --model_type slp --output_mode regression --epochs 20 --load_model
@@ -67,5 +72,5 @@ python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+km
 python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+kmeans+fnn  --output_mode classification --epochs 10 --load_model
 
 
-# others: 
+# others commands to note of: 
 pip list --format=freeze > requirements_pip.txt
