@@ -225,6 +225,7 @@ class ModelHelper:
 
 
         model = SLP(input_size, output_size)
+        self.logger.info('slp model is made: '+ str(model))
 
         # pass to training loop 
         model_state = self.train_class.train((train, test), model)

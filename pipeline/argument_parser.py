@@ -1,3 +1,6 @@
+'''
+this file will remain in pipeline for use'''
+
 import argparse 
 from driver import Driver 
 
@@ -5,16 +8,18 @@ import logging
 
 from utils import Utils
 
-
 '''
 this parser will have subgrouping associated with the file they are used in 
 this makes the parsing easier with the redone pipeline 
 
 create full pipeline
-when testing, use helper functions to debug 
+when testing, use helper functions to debug
+
+argparse automatically picks up on sys.argv (global from the file that is run)
 '''
 
-parser= argparse.ArgumentParser(description='model creation and pipeline')
+parser= argparse.ArgumentParser(description='model creation and pipeline', 
+                                fromfile_prefix_chars='@')
 parser.add_argument('--logger_level', choices=['info', 'debug'], default = 'debug', help= 'logger level setting')
 parser.add_argument('--automatic_file_naming', default= True, choices=[True, False], help= 'automatic file naming, which doesnt have to be specified in commandline' )
 
@@ -77,8 +82,10 @@ Utils.make_path([args.data_pipeline,
 for arg in args.__dict__.items(): 
     print(arg)
 
+
 # constant args which cannot be changed in the command line 
-args.logger_name = 'main_logger' 
+args.logger_name = 'main_logger'
+
 
 
 '''

@@ -19,7 +19,7 @@ python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+km
 note the models may have been trained more the number of epochs here 
 
 ## regression 
-### slp -- DONE 
+### slp 
 python pipeline_redo/argument_parser.py --build_code --model_type slp --output_mode regression --epochs 20
 
 python pipeline_redo/argument_parser.py --build_code --model_type slp --output_mode regression --epochs 20 --load_model
@@ -65,3 +65,7 @@ python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+km
 - autoencoder and fnn both trained for 20 epochs, then 30 more for fnn below 
 
 python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+kmeans+fnn  --output_mode classification --epochs 10 --load_model
+
+
+# others: 
+pip list --format=freeze > requirements_pip.txt
