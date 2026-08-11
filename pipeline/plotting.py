@@ -1,8 +1,10 @@
 import logging
 
-from utils import Utils 
+from .utils import Utils 
 import matplotlib.pyplot as plt 
 import seaborn 
+
+plt.set_loglevel('warning')
 
 class Plotting: 
     '''
@@ -25,7 +27,11 @@ class Plotting:
         plt.xticks(x, rotation= 45)
         plt.savefig(self.args.elbow_curve_for_kmeans)
         self.logger.info('kmeansplot saved to: ' + self.args.elbow_curve_for_kmeans)
-        plt.show ()
+        # plt.show ()
+        # add to args 
+        self.args.others['plot_files'].append(self.args.elbow_curve_for_kmeans)
+
+        plt.close('all')
 
     def nn_plotting(self, state): 
         '''
@@ -56,14 +62,15 @@ class Plotting:
         filename = self.args.plot_filepath + 'losses.png'
         plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
-        plt.show()
+        # plt.show()
+        self.args.others['plot_files'].append(filename)
 
 
         if state['loss_func_mode'] =='cel': 
             self.plot_accuracy(state)
             self.plot_f1score(state)
 
-
+        plt.close('all')
         return 
     
     def plot_accuracy(self, state): 
@@ -80,7 +87,7 @@ class Plotting:
         filename= self.args.plot_filepath + 'accuracy.png'
         plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
-        plt.show()
+        # plt.show()
         return 
 
     def plot_f1score(self,state): 
@@ -97,5 +104,5 @@ class Plotting:
         filename= self.args.plot_filepath + 'f1score.png'
         plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
-        plt.show()
+        # plt.show()
         return 

@@ -1,7 +1,7 @@
-from utils import Utils 
-from models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
-from train import Train 
-from plotting import Plotting
+from .utils import Utils 
+from .models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
+from .train import Train 
+from .plotting import Plotting
 
 import torch 
 from sklearn.model_selection import train_test_split
@@ -225,6 +225,7 @@ class ModelHelper:
 
 
         model = SLP(input_size, output_size)
+        self.logger.info('slp model is made: '+ str(model))
 
         # pass to training loop 
         model_state = self.train_class.train((train, test), model)

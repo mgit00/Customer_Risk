@@ -1,0 +1,8 @@
+--build_code
+--model_type
+slp
+--output_mode
+regression
+--epochs
+3
+--load_model

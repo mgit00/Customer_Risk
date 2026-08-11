@@ -1,6 +1,6 @@
-from data_processing import DataProcessing
-from model_helper import ModelHelper
-from clustering import Clustering
+from .data_processing import DataProcessing
+from .model_helper import ModelHelper
+from .clustering import Clustering
 
 import logging 
 

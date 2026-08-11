@@ -1,8 +1,8 @@
 import torch 
 import logging 
-from model_metrics import ModelMetrics, LossFunc, Levels
-from model_state import ModelState
-from utils import Utils 
+from .model_metrics import ModelMetrics, LossFunc, Levels
+from .model_state import ModelState
+from .utils import Utils 
 
 from torch.optim import Adam 
 from torch.nn import CrossEntropyLoss, MSELoss 

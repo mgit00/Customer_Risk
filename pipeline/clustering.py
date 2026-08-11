@@ -2,8 +2,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.cluster import KMeans
 
-from utils import Utils 
-from plotting import Plotting
+from .utils import Utils 
+from .plotting import Plotting
 
 import logging 
 
