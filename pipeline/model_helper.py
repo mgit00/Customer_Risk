@@ -1,7 +1,7 @@
-from utils import Utils 
-from models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
-from train import Train 
-from plotting import Plotting
+from .utils import Utils 
+from .models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
+from .train import Train 
+from .plotting import Plotting
 
 import torch 
 from sklearn.model_selection import train_test_split

@@ -1,5 +1,5 @@
 import pandas as pd 
-from utils import Utils 
+from .utils import Utils 
 
 from sklearn.preprocessing import OrdinalEncoder, LabelEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline

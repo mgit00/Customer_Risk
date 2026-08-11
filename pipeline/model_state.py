@@ -1,5 +1,5 @@
 from typeguard import typechecked 
-from model_metrics import ModelMetrics
+from .model_metrics import ModelMetrics
 
 import logging 
 
