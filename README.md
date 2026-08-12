@@ -11,3 +11,13 @@ I faced trouble with adding new models and changing data processing methods, so 
 
 # FastAPI Usage 
 fastapi will be used to interact with the pipeline. this is best done with a BaseModel class- which replaces the commandline argparse. as a result, there will be 2 ways to run the pipeline: pipeline/argument_parser or pipeline/basemodel_api. both will be called by python commands. 
+
+# predicting step
+once the models are all trained, they are saved. these saved models can be used for predicting the customer risk. each customer can be inputted into the model as an API put request and the risk classification will be given. 
+
+in order to do this, the data has to be put through processing. 
+then the model has to be loaded in. 
+then, the predict step has to be run on the model. 
+lastly, the output should be posted to the API reponse. 
+
+- first branch off and figure out how to adjust pipeline accordingly 
