@@ -57,6 +57,9 @@ class MainDriver:
         modelhelper.add_argument('--model_type', choices =['slp', 'fnn', 'kmeans+fnn', 'autoencoder+kmeans+fnn'], default = 'slp', help = 'model type to choose from')
         modelhelper.add_argument('--hidden_sizes', nargs= '+', type= int, default= [30, 20], help= 'list of hidden sizes for the hidden layers')
         modelhelper.add_argument('--model_filename', default = 'model_info/saved_models/model.pt', help= 'location of saved model')
+        modelhelper.add_argument('--kmeans_model_filename', default = 'model_info/saved_models/clustering/kmeans_model.pkl')
+        modelhelper.add_argument('--autoencoder_kmeans_model_filename', default = 'model_info/saved_models/clustering/autoencoder_kmeans_model.pkl')
+
 
         train= parser.add_argument_group(title = 'args for train.py training loop ')
         train.add_argument('--lr', default = .0001, type = float)
@@ -88,7 +91,9 @@ class MainDriver:
                         args.data_filename, 
                         args.model_filename, 
                         args.plot_filepath, 
-                        args.elbow_curve_for_kmeans])
+                        args.elbow_curve_for_kmeans, 
+                        args.kmeans_model_filename, 
+                        args.autoencoder_kmeans_model_filename])
 
 
         for arg in args.__dict__.items(): 
