@@ -4,8 +4,10 @@ from sklearn.pipeline import Pipeline
 import torch 
 
 import cloudpickle 
+import pickle 
 
 from pathlib import Path
+import zipfile
 
 class Utils: 
     '''
@@ -57,6 +59,20 @@ class Utils:
         model_state  = torch.load(location, weights_only = False )
         print('model loaded in from: ', location)
         return model_state
+    
+    @staticmethod
+    def save_kmeans_model(location, model_state): 
+        with open(location, "wb") as f:
+            pickle.dump(model_state, f)
+        print('kmeans model state saved to: ', location)
+
+    @staticmethod
+    def load_kmeans_model(location): 
+        with open(location, "rb") as f:
+            loaded_kmeans = pickle.load(f)
+        print('kmeans model loaded in from: ', location)
+        return loaded_kmeans
+    
 
 
     ### paths 
@@ -68,4 +84,18 @@ class Utils:
         return 
 
 
-    
+    @staticmethod
+    def check_loaded_dataset(logger) -> None: 
+        data_file = "dataset/application_record.csv"
+        file_path = Path(data_file)
+
+        if file_path.is_file(): 
+            logger.debug('dataset already unzipped')
+            pass  
+        else: 
+            # add the file
+            zip_path = "./data.zip"
+            extract_path = "./"  # current directory
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(extract_path)
+            logger.info('dataset folder unzipped')

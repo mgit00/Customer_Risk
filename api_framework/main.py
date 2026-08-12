@@ -7,8 +7,8 @@ matplotlib.use('Agg')
 import uvicorn 
 from pipeline.main_driver import MainDriver 
 from pipeline.driver import Driver
+from pipeline.utils import Utils 
 import logging 
-
 
 
 from api_framework.fastapi_setup import app # runs the script first before func below 
@@ -36,6 +36,10 @@ if __name__ == '__main__':
 
     logger.debug('finshed logger initialization')
     
+    # unzip the data files 
+    Utils.check_loaded_dataset(logger)
+
+
 
     uvicorn.run(__name__+":app", log_config = None,  reload=False) # current name # logging from uvicorn 
     logger.debug('finished api run')

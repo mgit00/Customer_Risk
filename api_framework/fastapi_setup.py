@@ -1,9 +1,13 @@
-from fastapi import FastAPI 
+from fastapi import FastAPI , HTTPException
 from fastapi.responses import FileResponse
 
 from .argument_items import ArgumentItems
 from pipeline.driver import Driver # same direcotry level, no need
 from pipeline.main_driver import MainDriver 
+
+# for prediction 
+from pipeline_predict.driver import DriverPrediction
+from pipeline_predict.customer_attributes import CustomerAttributes 
 
 import logging 
 
@@ -38,3 +42,28 @@ def model_pipeline(argument_items: ArgumentItems, model_version: int = 1 ): # ar
 
 
 
+# for prediction
+@app.put('/customer_risk/') # {customer} inferred 
+def prediction_pipeline(customer: CustomerAttributes): 
+    '''
+    this is called for the prediction step of the fastapi 
+    the prediction will be done for the customer id specified 
+    it will return the customer risk to the bank
+    then, the bank can either approve or deny the credit card application using that information 
+    '''
+    # note logger will initialized in main.py, use that to update during the prediction process 
+
+    driver= DriverPrediction(customer)
+
+    if not driver.check_requirements(): 
+        raise HTTPException(status_code=404, detail="not all models are made")
+    
+    if not driver.check_customer(): # check if customer exists in df 
+        raise HTTPException(status_code=404, detail="customer id not found in dataset")
+
+    # pass onto rest of pipeline 
+    pred = driver.get_prediction()
+        # sets off pipeline 
+ 
+    return 'The customer risk level for cutomer ' + str(customer.id_number) + ' is: ' + pred 
+    

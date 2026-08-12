@@ -138,7 +138,7 @@ class ModelHelper:
         # initalize the model 
         autoencoder_model = model.autoencoder
         # no need to train on second pass 
-        if not self.args.load_model: 
+        if not self.args.load_model: # only if not loading model 
             self.logger.debug('train autoencoder')
             # pass train dataloader to train loop to train the model 
                 # the target is the same as the input for autoencoder
@@ -155,8 +155,9 @@ class ModelHelper:
         # train model on entire data embeddings 
         # kmeans_model.fit(data['trainx'])
         kmeans_model.fit(embeddings.detach().numpy()) # want numpy array for sklearn kmeans  
+        # save model 
+        Utils.save_kmeans_model(location= self.args.autoencoder_kmeans_model_filename, model_state=kmeans_model) 
         self.logger.info('kmeans trained on autoencoder embeddings')
-        
 
         ### fnn model 
         self.logger.debug('train fnn portion')
@@ -196,6 +197,8 @@ class ModelHelper:
 
         # use data to train the kmeans model 
         model.train_kmeans(data['trainx']) # train the kmeans model 
+        # save model 
+        Utils.save_kmeans_model(location= self.args.kmeans_model_filename, model_state=model.kmeans) 
         self.logger.info('kmeans model is trained')
 
         # call training loop  
