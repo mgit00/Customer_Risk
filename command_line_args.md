@@ -2,7 +2,6 @@
 to run api call, follow the format given and suggested by default modelbase suggested fastapi (argument_items.py, args.txt)
 
 python -m api_framework.main
-python -m pipeline_predict.customer_attributes
 
 ## this is the section containing examples command line args -- not needed anymore as FastAPI is used now
 this will be used to show the flexibility in the way that argparse was implemented 
