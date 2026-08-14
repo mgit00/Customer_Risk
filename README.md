@@ -1,4 +1,4 @@
-# Bank Credit Risk 
+# Customer Risk
 This project uses credit card application and bank record data from https://www.kaggle.com/datasets/rikdifos/credit-card-approval-prediction. 
 
 With this data, i will create an end-to-end pipeline which classifies the risk level of approving a credit card application for a customer. 
