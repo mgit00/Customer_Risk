@@ -1,4 +1,4 @@
-# running api call 
+# running api call from terminal
 to run api call, follow the format given and suggested by default modelbase suggested fastapi (argument_items.py, args.txt)
 
 python -m api_framework.main
@@ -72,5 +72,3 @@ python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+km
 python pipeline_redo/argument_parser.py --build_code --model_type autoencoder+kmeans+fnn  --output_mode classification --epochs 10 --load_model
 
 
-# others commands to note of: 
-pip list --format=freeze > requirements_pip.txt
