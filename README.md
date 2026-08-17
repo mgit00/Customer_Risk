@@ -71,6 +71,10 @@ The regression workflow predicts a continuous risk value rather than assigning t
 
 This is done with tweaking a small portion of the preprocessing infrastructure, showing how the pipeline is easily adjusted without interupting the rest of the model workflow. 
 
-## FastAPI 
+## FastAPI, Docker, AWS ECS
 FastAPI is used to interact with the pipeline. 
 api_framework/fastapi_setup.py has endpoint connection information. 
+
+Docker Hub has image: mgit00/customer-risk-image:latest
+
+Deployed on AWS ECS: note that :8000 should be added to link since uvicorn specifies port 8000. 
