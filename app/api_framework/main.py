@@ -39,7 +39,8 @@ if __name__ == '__main__':
     # unzip the data files 
     Utils.check_loaded_dataset(logger)
 
-
-
-    uvicorn.run(__name__+":app", log_config = None,  reload=False) # current name # logging from uvicorn 
+    # for docker image 
+    uvicorn.run(__name__+":app",host="0.0.0.0", port=8000,  log_config = None,  reload=False) # current name # logging from uvicorn 
+    # uvicorn.run(__name__+":app", log_config = None,  reload=False) # current name # logging from uvicorn 
+    
     logger.debug('finished api run')
