@@ -2,7 +2,7 @@ import logging
 from pathlib import Path 
 
 from .customer_attributes import CustomerAttributes
-from .predict import Predict
+from .predict import Predict, PredictEvaluation
 
 from pipeline.utils import Utils 
 import pandas as pd
@@ -13,7 +13,7 @@ class DriverPrediction:
     the customer will be given a score based on each of the 4 classification models
     '''
 
-    def __init__(self, customer: CustomerAttributes): 
+    def __init__(self, customer: CustomerAttributes= CustomerAttributes()): 
         # the logger is already given at name main_logger 
         self.logger= logging.getLogger('main_logger')
 
@@ -66,4 +66,21 @@ class DriverPrediction:
         prediction = self.predict.predict_step(data)
         return prediction
 
+    def evaluate_model(self) -> str : 
+        '''
+        make dataset to test the model accuracy 
+
+        does the data processing and prediction step 
+        '''
+        predict = PredictEvaluation(self.logger)
+        testing_data = pd.read_csv('dataset/eval_customer_risk.csv')
+
+        data = self.data[self.data.ID.isin(testing_data['ID'])]
+
+        data= predict.process_data(data)
+
+        prediction = predict.predict_step_evalset(data)
+
+        res= predict.score_predictions(testing_data['risk_level'], prediction)
+        return res
 

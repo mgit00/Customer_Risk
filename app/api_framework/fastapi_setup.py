@@ -1,5 +1,5 @@
 from fastapi import FastAPI , HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 
 from .argument_items import ArgumentItems
 from pipeline.driver import Driver # same direcotry level, no need
@@ -66,4 +66,19 @@ def prediction_pipeline(customer: CustomerAttributes):
         # sets off pipeline 
  
     return 'The customer risk level for cutomer ' + str(customer.id_number) + ' is: ' + pred 
+
+
+@app.post('/score_models', response_class=PlainTextResponse)
+def scoring_models_evaluation(): 
+    driver= DriverPrediction()
     
+    if not driver.check_requirements(): 
+        raise HTTPException(status_code=404, detail="not all models are made")
+
+    if not driver.check_customer(): # check if customer exists in df 
+        raise HTTPException(status_code=404, detail="customer id not found in dataset")
+
+    # pass onto rest of pipeline 
+    pred = driver.evaluate_model()
+
+    return pred 
