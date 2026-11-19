@@ -2,6 +2,7 @@ import torch
 
 from pipeline.utils import Utils
 from pipeline.models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
+import pickle 
 
 from sklearn.metrics import (
     f1_score,
@@ -31,7 +32,11 @@ class Predict:
         # data is now ready for passing into the models 
         self.logger.info('data is now put through the previously created data processing pipeline')
 
-        x = torch.tensor(data.values, dtype = torch.float32)
+        with open("model_info/data_processing/scaler.pkl", "rb") as f:
+            loaded_scaler = pickle.load(f)
+        data = loaded_scaler.transform(data)
+
+        x = torch.tensor(data, dtype = torch.float32) # removed values bc of scaling 
         self.logger.debug('data now transformed to tensor')
 
         return x 
@@ -166,7 +171,6 @@ class Predict:
 
 
 
-
 class PredictEvaluation(Predict) : # subclass 
     # subclass, no need to make init 
 
@@ -198,8 +202,13 @@ class PredictEvaluation(Predict) : # subclass
 
         pred =model(data) # forward pass 
 
+        print(pred[:10])
         level = torch.argmax(pred, dim = 1)
+        print(level[:10])
         res['slp'] = level 
+
+        print(data.mean(dim= 0 ), data.std(dim= 0 ))
+        print(data[:10])
 
 
         ### fnn 
@@ -278,10 +287,12 @@ class PredictEvaluation(Predict) : # subclass
         y_true = torch.tensor(y_true.to_numpy())
 
         scores = []
+        
 
         for model, y_pred in predictions.items(): 
 
             print(y_true.shape, y_pred.shape)
+            print(torch.unique(y_true, return_counts = True), torch.unique(y_pred, return_counts = True))
             # get scores for each model
             score = f"Model {model} scores are: \n Macro F1:{f1_score(y_true, y_pred, average='macro'):.4f} \n Weighted F1:{f1_score(y_true, y_pred, average='weighted'):.4f}"
 

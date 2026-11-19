@@ -2,11 +2,11 @@ from .utils import Utils
 from .models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
 from .train import Train 
 from .plotting import Plotting
-
+from sklearn.preprocessing import StandardScaler
 import torch 
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader   
-
+import pickle 
 import logging 
 
 class ModelHelper: 
@@ -49,10 +49,18 @@ class ModelHelper:
         data = Utils.read_data(self.args.data_filename)
         self.logger.debug('data is loaded ')
 
-        x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
+        # x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
+        y = data[['risk_level']]
+        x = data.drop(columns = ['risk_level'])
+
+        print(x.columns, y.columns)
+        scaler = StandardScaler() # fixme 
+        x = scaler.fit_transform(x) # add values backto x call below!!!!! 
+        with open("model_info/data_processing/scaler.pkl", "wb") as f:
+            pickle.dump(scaler, f)
 
         # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
-        x = torch.tensor(x.values, dtype = torch.float32) # float32 = default for pytorch models/model layers 
+        x = torch.tensor(x, dtype = torch.float32) # float32 = default for pytorch models/model layers 
         y = torch.tensor(y.values, dtype= torch.long if self.args.output_mode == 'classification' else torch.float32)
        
 

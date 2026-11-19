@@ -73,7 +73,7 @@ class DriverPrediction:
         does the data processing and prediction step 
         '''
         predict = PredictEvaluation(self.logger)
-        testing_data = pd.read_csv('dataset/eval_customer_risk.csv')
+        testing_data = pd.read_csv('dataset/data.csv')
 
         data = self.data[self.data.ID.isin(testing_data['ID'])]
 

@@ -103,6 +103,11 @@ class Train:
         self.logger.debug('starting training loop')
         ### do training loop 
         for epoch in range(self.args.epochs): 
+            # print(f"Epoch {epoch}")
+            # print("Bias:", model.layer.bias.detach().cpu())
+            # print("Weight norms:", model.layer.weight.norm(dim=1).detach().cpu())
+            # print(loss_func)
+
             modelmetrics.initalize_metric_trackers() # reset metrics for this epoch 
 
             model.train()
@@ -112,6 +117,8 @@ class Train:
                 x,y = x.to(self.args.device), y.to(self.args.device)
                 
                 pred = model(x)
+
+                
 
                 if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                     y= y.flatten() # for CEL
@@ -130,6 +137,9 @@ class Train:
                     x,y = x.to(self.args.device), y.to(self.args.device)
 
                     pred = model(x)
+                    # print(pred[:10])
+                    
+                    # fixme print(torch.unique(torch.argmax(pred, dim = 1), return_counts= True ))
 
                     if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                         y= y.flatten() # for CEL
