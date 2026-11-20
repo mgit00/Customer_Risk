@@ -2,7 +2,7 @@
 *.json
 .DS_Store
 dataset/
-IGNORED_additiona.md
+NOTES.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

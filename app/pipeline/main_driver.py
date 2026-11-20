@@ -19,6 +19,7 @@ when testing, use helper functions to debug
 note: argparse automatically picks up on sys.argv (global from the file that is run)
 '''
 
+# FIXME to be deprecated 
 class MainDriver: 
     '''
     initializing automatically starts running the pipeline 

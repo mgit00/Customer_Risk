@@ -8,6 +8,8 @@ import uvicorn
 from pipeline.main_driver import MainDriver 
 from pipeline.driver import Driver
 from pipeline.utils import Utils 
+
+from utils.schemas import config_settings 
 import logging 
 
 
@@ -26,7 +28,8 @@ if __name__ == '__main__':
     this should be done in main file, otherwise duplicate streamhandlers do duplicate printing 
     '''
     logger= logging.getLogger('main_logger') # keep logger name instead of __name__, this won't be a problem when imported - where __main__ becomes main
-    level_attr = getattr(logging, 'debug'.upper()) # similar tp logging.DEBUG
+    # level_attr = getattr(logging, 'debug'.upper()) # similar tp logging.DEBUG
+    level_attr = getattr(logging, config_settings.logger_level.upper())
     logging.basicConfig(filename ='model_info/logger.log', filemode='w',  level = level_attr)
         
     # needed for printing 

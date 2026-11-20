@@ -7,6 +7,8 @@ from .predict import Predict, PredictEvaluation
 from pipeline.utils import Utils 
 import pandas as pd
 
+# FIXME move into main driver class 
+
 class DriverPrediction: 
     '''
     this will drive the prediction steps for the customer given
