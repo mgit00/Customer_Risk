@@ -158,6 +158,6 @@ from utils.constants import ModelType
 hd = MainDriver()
 hd.start_app()
 # hd.process_data()
-hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .01, epochs= 150, load_model = False))
+hd.train_model(ModelTrainingBasemodel(model_type= ModelType.slp, lr = .0001, epochs= 20, load_model = True))
 
 # python -m src.main_driver

@@ -28,4 +28,4 @@ COPY ./app/ /code/
 
 EXPOSE 8000 
 
-CMD ["python", "-m", "api_framework.main"]
+CMD ["python", "-m", "api_framework.main"] # FIXME call from src.main now 

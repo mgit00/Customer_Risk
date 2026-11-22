@@ -117,8 +117,7 @@ class Train:
                 x,y = x.to(device), y.to(device)
                 
                 pred = model(x)
-
-                
+                            
 
                 if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                     y= y.flatten() # for CEL
