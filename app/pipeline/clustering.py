@@ -2,6 +2,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.cluster import KMeans
 
+from utils.constants import ConstantFilenames
+from utils.schemas import KMeansExplorationBasemodel
+
 from .utils import Utils 
 from .plotting import Plotting
 
@@ -11,22 +14,24 @@ class Clustering:
     '''
     this class drives the creation of kmeans for multiple k 
     '''
-    def __init__(self, args): 
+    def __init__(self, args: KMeansExplorationBasemodel): 
         self.args = args 
-        self.logger = logging.getLogger(self.args.logger_name)
+        self.logger = logging.getLogger('main_logger')
 
-        self.plotting = Plotting(self.args)
+        self.plotting = Plotting() 
 
     def driver(self): 
         data= self.process_data() # full data 
         intertias = self.get_intertias(data)
-        self.plotting.kmeans_elbow_curve(intertias) # this saves the image 
+        self.plotting.kmeans_elbow_curve(kstart = self.args.k_values[0], 
+                                         kend= self.args.k_values[1], 
+                                         inertias= intertias) # this saves the image 
         return 
 
 
     def process_data(self) -> pd.DataFrame: 
         # read data 
-        data = Utils.read_data(self.args.data_filename)
+        data = Utils.read_data(ConstantFilenames.data_filename.value)
         self.logger.debug('data is loaded for clustering ')
 
         x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 

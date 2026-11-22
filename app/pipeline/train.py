@@ -10,8 +10,8 @@ from torch.nn import CrossEntropyLoss, MSELoss
 class Train: 
     def __init__(self, args) -> None:
         self.args = args 
-        
-        self.logger = logging.getLogger(self.args.logger_name)
+        self.output_mode= 'classification'
+        self.logger = logging.getLogger('main_logger')
 
 
     def get_loss_func(self, model_name ): 
@@ -20,7 +20,7 @@ class Train:
         if model_name =='Autoencoder': 
             self.logger.info('loss function autoencoder: mse')
             return MSELoss()
-        elif self.args.output_mode =='classification': 
+        elif self.output_mode =='classification': 
             self.logger.info('loss function: cross entropy')
             return CrossEntropyLoss()
         else : 
@@ -54,8 +54,8 @@ class Train:
 
         self.logger.debug('in training loop ')
 
-        self.args.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.logger.info('device used: ' + str(self.args.device) ) # torch.cuda.current_device() gives integer 
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.logger.info('device used: ' + str(device) ) # torch.cuda.current_device() gives integer 
 
         ''' data and model setting up '''
         self.logger.debug('setting up data, model, optimizer, loss function ')
@@ -64,7 +64,7 @@ class Train:
         # place data on device when iterating, this places batch on device to save memory
 
         # place model on device 
-        model= model.to(self.args.device)
+        model= model.to(device)
 
         # ensure that all params have gradient computations enabled 
             # this can be false for fnn of autoencoder kemans fnn model since autoencoder shouldn't be trained anymore
@@ -108,13 +108,13 @@ class Train:
             # print("Weight norms:", model.layer.weight.norm(dim=1).detach().cpu())
             # print(loss_func)
 
-            modelmetrics.initalize_metric_trackers() # reset metrics for this epoch 
+            modelmetrics.initalize_metric_trackers(device) # reset metrics for this epoch 
 
             model.train()
             # loop through batches from dataloader 
             for x,y in train_dataloader: 
                 # place onto gpu if available 
-                x,y = x.to(self.args.device), y.to(self.args.device)
+                x,y = x.to(device), y.to(device)
                 
                 pred = model(x)
 
@@ -134,7 +134,7 @@ class Train:
             with torch.no_grad(): # disable gradient computation
                 for x,y in test_dataloader: 
                     # place onto gpu if needed 
-                    x,y = x.to(self.args.device), y.to(self.args.device)
+                    x,y = x.to(device), y.to(device)
 
                     pred = model(x)
                     # print(pred[:10])

@@ -1,6 +1,7 @@
 import pandas as pd 
 from .utils import Utils 
 
+from utils.constants import ConstantFilenames
 from sklearn.preprocessing import OrdinalEncoder, LabelEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
@@ -21,9 +22,9 @@ class DataProcessing:
     application_record -> applications_processed 
     credit_record -> customer_risk 
     '''
-    def __init__(self, args): 
-        self.args= args 
-        self.logger= logging.getLogger(self.args.logger_name)
+    def __init__(self): 
+        self.logger= logging.getLogger('main_logger')
+        self.output_mode= 'classification'
 
     def complete_data_processing(self): 
         '''
@@ -36,22 +37,22 @@ class DataProcessing:
 
         self.logger.debug('doing full data processing ')
 
-        og_credit_record= Utils.read_data(filename=self.args.credit_record)
-        og_application_record = Utils.read_data(filename=self.args.application_record)
+        og_credit_record= Utils.read_data(filename=ConstantFilenames.credit_record.value)
+        og_application_record = Utils.read_data(filename=ConstantFilenames.application_record.value)
 
         customer_risk = self.customer_risk_processing(og_credit_record)
         applications, applications_pipeline= self.cc_applications_processing(og_application_record)
 
         # customer risk processing has no pipeline, but applications does, save pipeline 
-        Utils.save_pipeline(pipeline= applications_pipeline, location = self.args.data_pipeline)
-        self.logger.info('credit application pipeline saved: ' +self.args.data_pipeline)
+        Utils.save_pipeline(pipeline= applications_pipeline, location = ConstantFilenames.data_pipeline.value)
+        self.logger.info('credit application pipeline saved: ' + ConstantFilenames.data_pipeline.value)
 
         # make the joined data and save it 
         joined= self.join_data(customer_risk, applications)
             # remove id column 
         joined.drop(columns = ['ID'], axis = 1 , inplace= True )
-        Utils.save_df(df= joined, filename =self.args.data_filename)
-        self.logger.info('x, y data saved to: '+ self.args.data_filename)
+        Utils.save_df(df= joined, filename =ConstantFilenames.data_filename.value)
+        self.logger.info('x, y data saved to: '+ ConstantFilenames.data_filename.value)
 
 
     ### processing pipelines 
@@ -75,7 +76,7 @@ class DataProcessing:
         # make ID feature from index 
         creditworthiness.reset_index(drop= False, inplace= True )
 
-        if self.args.output_mode == 'classification': 
+        if self.output_mode == 'classification': 
             # discreditize into bins 
             score_mean= creditworthiness.summed.where(creditworthiness.summed > 0 ).mean()
             score_std= creditworthiness.summed.where(creditworthiness.summed > 0 ).std()

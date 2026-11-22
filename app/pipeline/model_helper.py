@@ -9,6 +9,9 @@ from torch.utils.data import TensorDataset, DataLoader
 import pickle 
 import logging 
 
+from utils.schemas import ModelTrainingBasemodel
+from utils.constants import ConstantFilenames, ModelType
+
 class ModelHelper: 
     '''
     model helper class to implement needed functions for train.py 
@@ -19,12 +22,13 @@ class ModelHelper:
     the sequence of the functions called are dependent on the model selected 
     '''
 
-    def __init__(self, args): 
+    def __init__(self, args: ModelTrainingBasemodel): 
         self.args= args 
-        self.logger= logging.getLogger(self.args.logger_name)
+        self.logger= logging.getLogger('main_logger')
+        self.output_mode = 'classification'
 
         self.train_class= Train(self.args)
-        self.plotting_class = Plotting(self.args)
+        self.plotting_class = Plotting()
 
     def driver(self) -> None: 
         # call model_chooser, returns model_state 
@@ -34,7 +38,7 @@ class ModelHelper:
         Utils.save_model(location = self.args.model_filename, model_state= model_state)
 
         # plot the model_state training info 
-        self.plotting_class.nn_plotting(model_state)
+        self.plotting_class.nn_plotting(self.args, model_state)
         return
     
 
@@ -46,7 +50,7 @@ class ModelHelper:
         do train test split 
         '''
         # read data 
-        data = Utils.read_data(self.args.data_filename)
+        data = Utils.read_data(ConstantFilenames.data_filename)
         self.logger.debug('data is loaded ')
 
         # x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
@@ -54,14 +58,14 @@ class ModelHelper:
         x = data.drop(columns = ['risk_level'])
 
         print(x.columns, y.columns)
-        scaler = StandardScaler() # fixme 
+        scaler = StandardScaler() # fixme ---- wrong data!!!!!! ?????
         x = scaler.fit_transform(x) # add values backto x call below!!!!! 
         with open("model_info/data_processing/scaler.pkl", "wb") as f:
             pickle.dump(scaler, f)
 
         # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
         x = torch.tensor(x, dtype = torch.float32) # float32 = default for pytorch models/model layers 
-        y = torch.tensor(y.values, dtype= torch.long if self.args.output_mode == 'classification' else torch.float32)
+        y = torch.tensor(y.values, dtype= torch.long if self.output_mode == 'classification' else torch.float32)
        
 
         trainx, testx, trainy, testy = train_test_split(x, y, test_size=.3, random_state= 1, shuffle = True)
@@ -98,16 +102,16 @@ class ModelHelper:
         self.logger.debug('model chosen: '+ self.args.model_type)
 
 
-        if self.args.model_type =='slp': 
+        if self.args.model_type.name =='slp': 
             model_state= self.slp_chosen()
             pass 
-        elif self.args.model_type == 'fnn': 
+        elif self.args.model_type.name == 'fnn': 
             model_state= self.fnn_chosen()
             pass 
-        elif self.args.model_type == 'kmeans+fnn': 
+        elif self.args.model_type.name == 'kmeans_fnn': 
             model_state = self.kmeans_fnn_chosen()
             pass 
-        elif self.args.model_type == 'autoencoder+kmeans+fnn': 
+        elif self.args.model_type.name == 'autoencoder_kmeans_fnn': 
             model_state = self.autoencoder_kmeans_fnn_chosen()
             pass 
         
@@ -137,7 +141,7 @@ class ModelHelper:
         # initalize model 
         input_size = next(iter(train))[0].shape[1] 
         hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
         model = AutoencoderKmeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
         self.logger.info('autoencoder means fnn model is made: '+ str(model))
 
@@ -164,7 +168,7 @@ class ModelHelper:
         # kmeans_model.fit(data['trainx'])
         kmeans_model.fit(embeddings.detach().numpy()) # want numpy array for sklearn kmeans  
         # save model 
-        Utils.save_kmeans_model(location= self.args.autoencoder_kmeans_model_filename, model_state=kmeans_model) 
+        Utils.save_kmeans_model(location= self.args.kmeans_model_filename, model_state=kmeans_model) 
         self.logger.info('kmeans trained on autoencoder embeddings')
 
         ### fnn model 
@@ -197,7 +201,7 @@ class ModelHelper:
         # get layer sizes 
         input_size = next(iter(train))[0].shape[1] + 1 # since cluster labels will be added in model 
         hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
          
         # initialize model 
         model = KMeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
@@ -229,7 +233,7 @@ class ModelHelper:
         # train model with dataloader 
 
         input_size = next(iter(train))[0].shape[1]
-        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
         
         self.logger.info('batched x,y data size: '+ str([data.shape for data in next(iter(train))]))
         self.logger.info('model output shape: '+ str(output_size))
@@ -256,7 +260,7 @@ class ModelHelper:
         # get layer sizes 
         input_size = next(iter(train))[0].shape[1]
         hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.args.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
         
 
         # define model 

@@ -11,6 +11,13 @@ from pipeline_predict.customer_attributes import CustomerAttributes
 
 import logging 
 
+# NOTE important call below 
+# to prevent crashes for fastapi 
+import matplotlib 
+matplotlib.use('Agg') # switches it to a non-interactive image-only backend so it generates plots in memory
+# this doesn't do pop up windows 
+
+
 '''
 fastapi set up 
 

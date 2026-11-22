@@ -1,3 +1,6 @@
+
+import logging 
+
 # use static_method for utils class 
 import pandas as pd 
 from sklearn.pipeline import Pipeline 
@@ -8,6 +11,7 @@ import pickle
 
 from pathlib import Path
 import zipfile
+
 
 class Utils: 
     '''
@@ -82,10 +86,19 @@ class Utils:
             path = Path(location)
             path.parent.mkdir(parents= True, exist_ok=True )
         return 
+    @staticmethod 
+    def make_folder(location_list: list) -> None: 
+        '''path.parent not used'''
+        for location in location_list: 
+            path = Path(location)
+            path.mkdir(parents= True, exist_ok=True )
+        return 
 
 
     @staticmethod
-    def check_loaded_dataset(logger) -> None: 
+    def check_loaded_dataset() -> None: 
+        logger= logging.getLogger('main_logger')
+
         data_file = "dataset/application_record.csv"
         file_path = Path(data_file)
 
