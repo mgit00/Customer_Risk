@@ -83,31 +83,35 @@ class DataProcessing:
         encoder= OrdinalEncoder(categories= [categories])
         records['status_encoded'] = encoder.fit_transform(records[['STATUS']])
 
-        # group by unique customer ID 
-        records_grouped= records.groupby(by= 'ID' , axis = 0)
-        # sum over each group with agg() 
-            # use transform() if mapping back to ungrouped records df 
-        creditworthiness= records_grouped.status_encoded.agg(summed= 'sum')
-        # make ID feature from index 
-        creditworthiness.reset_index(drop= False, inplace= True )
+        # # group by unique customer ID 
+        # records_grouped= records.groupby(by= 'ID' , axis = 0)
+        # # sum over each group with agg() 
+        #     # use transform() if mapping back to ungrouped records df 
+        # creditworthiness= records_grouped.status_encoded.agg(summed= 'sum')
+        # # make ID feature from index 
+        # creditworthiness.reset_index(drop= False, inplace= True )
 
-        if self.output_mode == 'classification': 
-            # discreditize into bins 
-            score_mean= creditworthiness.summed.where(creditworthiness.summed > 0 ).mean()
-            score_std= creditworthiness.summed.where(creditworthiness.summed > 0 ).std()
-                # pd.cut is right selctive ( , ] ranges with right= True setting 
-            ranges= (-float('inf'),0, score_mean- score_std, score_mean, score_mean + score_std, float('inf'))
-            range_titles= range(0, 5) # range_titles= ('none', 'low', 'medium_low', 'medium_high', 'high')
-            creditworthiness['risk_level']= pd.cut(creditworthiness['summed'], bins=ranges, labels=range_titles, right= True)
+        # if self.output_mode == 'classification': 
+        #     # discreditize into bins 
+        #     score_mean= creditworthiness.summed.where(creditworthiness.summed > 0 ).mean()
+        #     score_std= creditworthiness.summed.where(creditworthiness.summed > 0 ).std()
+        #         # pd.cut is right selctive ( , ] ranges with right= True setting 
+        #     # ranges= (-float('inf'),0, score_mean- score_std, score_mean, score_mean + score_std, float('inf'))
+        #     # range_titles= range(0, 5) # range_titles= ('none', 'low', 'medium_low', 'medium_high', 'high')
+        #     ranges= (-float('inf'),0, score_mean- score_std, score_mean, score_mean + score_std, float('inf'))
+        #     range_titles= range(0, 5) # range_titles= ('none', 'low', 'medium_low', 'medium_high', 'high')
+        #     creditworthiness['risk_level']= pd.cut(creditworthiness['summed'], bins=ranges, labels=range_titles, right= True)
             
-            # drop unneded cols 
-            creditworthiness.drop(labels=['summed'], axis = 1, inplace=True )
+        #     # drop unneded cols 
+        #     creditworthiness.drop(labels=['summed'], axis = 1, inplace=True )
 
-        else : # regression
-            creditworthiness.rename( {'summed': 'risk_level'}, axis = 1, inplace= True )
+        # else : # regression
+        #     creditworthiness.rename( {'summed': 'risk_level'}, axis = 1, inplace= True )
 
         self.logger.info('customer risk data processed' )
-        return creditworthiness
+        # return creditworthiness
+        records.rename({'status_encoded':'risk_level'}, axis = 1, inplace= True )
+        return records[['ID', 'risk_level']]
 
     def cc_applications_processing(self, apps ) -> tuple: # pd.DataFrame, pipeline: 
         '''
@@ -147,6 +151,7 @@ class DataProcessing:
         '''
         res = customer_risk.merge(applications, on='ID', how= 'inner') 
         # drop the ID column later on in the process 
+        res= res.drop_duplicates(subset= ['ID'])
 
         self.logger.debug('full joined x,y data done')
         return res 

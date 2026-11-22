@@ -79,7 +79,7 @@ class Predict:
 
 
     ### models --- 
-    def slp_model(self,data, loc, input_size= 35, output_size=5) -> str: 
+    def slp_model(self,data, loc, input_size= 35, output_size=3) -> str: 
         # load model 
         loaded =Utils.load_model(location= loc)
 
@@ -99,7 +99,7 @@ class Predict:
         return self.level_options[level]
 
 
-    def fnn_model(self,data, loc, input_size= 35, output_size=5)-> str: 
+    def fnn_model(self,data, loc, input_size= 35, output_size=3)-> str: 
         # load model 
         loaded =Utils.load_model(location= loc)
         hidden_sizes= loaded['args'].hidden_sizes 
@@ -120,7 +120,7 @@ class Predict:
         return self.level_options[level]
     
     
-    def kmeans_fnn_model(self,data, loc, input_size= 35, output_size=5)-> str: 
+    def kmeans_fnn_model(self,data, loc, input_size= 35, output_size=3)-> str: 
         # load model 
         loaded =Utils.load_model(location= loc)
 
@@ -145,7 +145,7 @@ class Predict:
         return self.level_options[level]
     
     
-    def autoencoder_kmeans_fnn_model(self,data, loc, input_size= 35, output_size=5)-> str: 
+    def autoencoder_kmeans_fnn_model(self,data, loc, input_size= 35, output_size=3)-> str: 
         # load model 
         loaded =Utils.load_model(location= loc)
         hidden_sizes= loaded['args'].hidden_sizes 

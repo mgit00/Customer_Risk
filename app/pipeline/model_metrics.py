@@ -90,10 +90,10 @@ class ModelMetrics:
         if self.mode == 'mse': 
             return 
 
-        self.f1_metric = MulticlassF1Score(num_classes= 5)
-        self.f1_metric_test= MulticlassF1Score(num_classes= 5)
-        self.accuracy_metric = MulticlassAccuracy(num_classes= 5 )
-        self.accuracy_metric_test = MulticlassAccuracy(num_classes= 5 )
+        self.f1_metric = MulticlassF1Score(num_classes= 3)
+        self.f1_metric_test= MulticlassF1Score(num_classes= 3)
+        self.accuracy_metric = MulticlassAccuracy(num_classes= 3 )
+        self.accuracy_metric_test = MulticlassAccuracy(num_classes= 3 )
         
         self.f1_metric.to(device)
         self.f1_metric_test.to(device)
