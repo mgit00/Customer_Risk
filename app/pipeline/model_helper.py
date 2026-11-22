@@ -141,7 +141,7 @@ class ModelHelper:
         # initalize model 
         input_size = next(iter(train))[0].shape[1] 
         hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 3 if self.output_mode == 'classification' else 1  # depends on output type 
         model = AutoencoderKmeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
         self.logger.info('autoencoder means fnn model is made: '+ str(model))
 
@@ -201,7 +201,7 @@ class ModelHelper:
         # get layer sizes 
         input_size = next(iter(train))[0].shape[1] + 1 # since cluster labels will be added in model 
         hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 3 if self.output_mode == 'classification' else 1  # depends on output type 
          
         # initialize model 
         model = KMeansFNN(self.args.k_value, input_size, hidden_sizes, output_size)
@@ -233,7 +233,7 @@ class ModelHelper:
         # train model with dataloader 
 
         input_size = next(iter(train))[0].shape[1]
-        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 3 if self.output_mode == 'classification' else 1  # depends on output type 
         
         self.logger.info('batched x,y data size: '+ str([data.shape for data in next(iter(train))]))
         self.logger.info('model output shape: '+ str(output_size))
@@ -260,7 +260,7 @@ class ModelHelper:
         # get layer sizes 
         input_size = next(iter(train))[0].shape[1]
         hidden_sizes = self.args.hidden_sizes 
-        output_size = 5 if self.output_mode == 'classification' else 1  # depends on output type 
+        output_size = 3 if self.output_mode == 'classification' else 1  # depends on output type 
         
 
         # define model 

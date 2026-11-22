@@ -62,9 +62,24 @@ class DataProcessing:
         - encode status into 0-5 score 
         - sum over all months for each customer 
         - discretize into 5 categories <- categorical encoding 
-        '''
         # transform STATUS into ordinal levels  
         categories= ['X' , 'C' ] +  [str(i) for i in range(0, 6 )]
+        encoder= OrdinalEncoder(categories= [categories])
+        records['status_encoded'] = encoder.fit_transform(records[['STATUS']])
+
+        # TODO changed: 
+        the risk score is calculated 
+        - encode status into 0-2 score 
+        - sum over all months for each customer 
+        - discretize into 3 categories <- categorical encoding 
+        '''
+        # alter catecories 
+        mapping = {'X': 'no_risk', 'C': 'no_risk', 
+                   '0': 'low_risk', 
+                   '1': 'high_risk' ,'2':'high_risk', '3':'high_risk', '4':'high_risk', '5':'high_risk'}
+        records['STATUS']= records['STATUS'].replace(mapping)
+        # transform STATUS into ordinal levels  
+        categories= ['no_risk', 'low_risk', 'high_risk']
         encoder= OrdinalEncoder(categories= [categories])
         records['status_encoded'] = encoder.fit_transform(records[['STATUS']])
 
