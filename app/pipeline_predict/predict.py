@@ -19,14 +19,12 @@ class Predict:
 
         self.level_options= {0: 'no risk', 
                  1: 'low', 
-                 2: 'medium_low', 
-                 3: 'medium_high', 
-                 4: 'high'} # ('none', 'low', 'medium_low', 'medium_high', 'high')
+                 2: 'high'} # ('none', 'low', 'high')
         
 
     def process_data(self, data) -> torch.Tensor : 
         ''' transform through data processing pipleine '''
-        pipeline = Utils.load_pipeline('./model_info/data_processing/application_record_pipeline.pkl')
+        pipeline = Utils.load_pipeline('data_saved/data_processing/application_record_pipeline.pkl')
         data = pipeline.transform(data)
         data.drop(columns = ['ID'], axis = 1 , inplace= True )
         # data is now ready for passing into the models 

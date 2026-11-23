@@ -13,6 +13,7 @@ from pipeline.data_processing import DataProcessing
 from pipeline.model_helper import ModelHelper
 from pipeline.clustering import Clustering
 
+from pipeline.predict import PredictCustomer
 
 # global, can move to seperate file later on if there are more global states to track 
     # this is simple for now, so define here 
@@ -67,11 +68,26 @@ class MainDriver:
 
 
     
-    def calculate_customer_risk(self, customer: CustomerAttributes) -> str: 
+    def calculate_customer_risk(self, customer: CustomerAttributes) -> tuple[bool, str]: 
         '''
         given customer id, give the risk of opening credit for that customer 
         '''
         # TODO 
+        driver = PredictCustomer(customer)
+        # pass onto rest of pipeline 
+
+        if not driver.check_requirements(): 
+            # raise HTTPException(status_code=404, detail="not all models are made")
+            return False, "not all models are made"
+        
+        if not driver.check_customer(): # check if customer exists in df 
+            # raise HTTPException(status_code=404, detail="customer id not found in dataset")
+            return False, "customer id not found in dataset"
+    
+        pred = driver.get_prediction()
+            # sets off pipeline 
+        self.logger.info(f'customer {customer.id_number} is labeled as {pred}')
+        return True, pred 
         pass 
 
 
@@ -106,7 +122,7 @@ class MainDriver:
         clustering.driver()
 
 
-    # TODO 
+    # DONE 
     def train_model(self, train_args: ModelTrainingBasemodel ) -> None: # TODO return type none?? 
         '''
         train a given model with specifications 
@@ -158,6 +174,13 @@ from utils.constants import ModelType
 hd = MainDriver()
 hd.start_app()
 # hd.process_data()
-hd.train_model(ModelTrainingBasemodel(model_type= ModelType.slp, lr = .0001, epochs= 20, load_model = True))
+'''
+### WORKING 
+# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .0001, batch_size = 64, epochs= 15, load_model = False))
+# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .001, epochs= 2, load_model = True))
+'''
+hd.train_model(ModelTrainingBasemodel(model_type= ModelType.slp, lr = .0001, batch_size = 64, epochs= 15, load_model = True))
+
+# hd.calculate_customer_risk(CustomerAttributes())
 
 # python -m src.main_driver

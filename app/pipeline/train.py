@@ -13,6 +13,8 @@ class Train:
         self.output_mode= 'classification'
         self.logger = logging.getLogger('main_logger')
 
+        self.weights = torch.tensor([ 0.4397,  1.4364, 33.7553], dtype=torch.float32)
+
 
     def get_loss_func(self, model_name ): 
         #  if the model is autoencoder, the loss is automatically MSE 
@@ -71,17 +73,19 @@ class Train:
         self.logger.debug('all model params require gradient: '+ str(all(param.requires_grad for param in model.parameters())))
         
         # make optimizer 
-        optimizer = Adam(model.parameters(), lr = self.args.lr)
+        optimizer = Adam(model.parameters(), lr = self.args.lr, weight_decay= 1e-2)
 
-        # get loss function CEL or MSEL based on classification or regression 
+        # # get loss function CEL or MSEL based on classification or regression 
         loss_func = self.get_loss_func(model_name= model.__class__.__name__)
-
+        # loss_func = CrossEntropyLoss(weight=torch.sqrt(self.weights).to(device))
 
         ''' model metrics and state are initialized ''' 
         self.logger.debug('initializing model metrics and model state class ')
         # initlalize model metrics, these are never affected by a model being loaded in 
             # these are specific to 1 call fo this function 
         mode = LossFunc.MSE if loss_func.__class__.__name__ == 'MSELoss' else LossFunc.CrossEntropyLoss
+        # mode= LossFunc.CrossEntropyLoss
+        if mode == 'cel': loss_func = CrossEntropyLoss(weight=torch.sqrt(self.weights).to(device))
         modelmetrics= ModelMetrics(self.args, mode = mode )
         modelmetrics.initialize_metrics()
 
@@ -121,9 +125,10 @@ class Train:
 
                 if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                     y= y.flatten() # for CEL
+
                 loss = loss_func(pred, y) 
                 
-                modelmetrics.update_batch_level(loss.item(),  pred, y, level = Levels.TRAIN)
+                modelmetrics.update_batch_level(loss.item()/len(train_dataloader),  pred, y, level = Levels.TRAIN)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -144,12 +149,14 @@ class Train:
                         y= y.flatten() # for CEL
                     loss = loss_func(pred,y)
 
-                    modelmetrics.update_batch_level(loss.item(), pred, y, level = Levels.TEST)
+                    modelmetrics.update_batch_level(loss.item()/len(test_dataloader), pred, y, level = Levels.TEST)
 
         
-
+                
             modelmetrics.update_epoch_level() # calculate the metrics at the end of this epoch 
             print('Epoch', model_state_class.epochs+ epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
+            # print(modelmetrics.accuracy, modelmetrics.accuracy_test, 
+            # modelmetrics.f1score, modelmetrics.f1score_test)
             
 
 

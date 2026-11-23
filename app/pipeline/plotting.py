@@ -67,8 +67,10 @@ class Plotting:
         # self.args.others['plot_files'].append(filename)
 
 
-        if state['loss_func_mode'] =='cel': 
+        if state['loss_func_mode'] =='cel':
+            plt.close('all') 
             self.plot_accuracy(args, state)
+            plt.close('all')
             self.plot_f1score(args, state)
 
         plt.close('all')
@@ -86,7 +88,7 @@ class Plotting:
         plt.legend()
 
         filename= args.plot_filepath + 'accuracy.png'
-        plt.savefig(filename) # can also do in utils if wanted
+        # plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
         # plt.show()
         return 
@@ -103,7 +105,7 @@ class Plotting:
         plt.legend()
 
         filename= args.plot_filepath + 'f1score.png'
-        plt.savefig(filename) # can also do in utils if wanted
+        # plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
         # plt.show()
         return 

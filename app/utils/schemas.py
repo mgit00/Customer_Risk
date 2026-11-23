@@ -57,7 +57,7 @@ class ModelTrainingBasemodel(BaseModel): # subclass
     ### training loop specifications ------ 
     load_model: bool = False  # decide to continue training from loaded model 
 
-    batch_size: int = 1000 
+    batch_size: int = 1000 # 32 1000 before, causing majority class collapse 
     lr: float = .0001 
     epochs: int = 3 
     # not needed for all models

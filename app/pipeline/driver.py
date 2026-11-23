@@ -1,57 +1,57 @@
-from .data_processing import DataProcessing
-from .model_helper import ModelHelper
-from .clustering import Clustering
+# from .data_processing import DataProcessing
+# from .model_helper import ModelHelper
+# from .clustering import Clustering
 
-import logging 
+# import logging 
 
-class Driver: 
-    '''
-    this class interacts with the argument parser to begin the pipeline
-    '''
+# class Driver: 
+#     '''
+#     this class interacts with the argument parser to begin the pipeline
+#     '''
 
-    def __init__(self, args): 
-        self.args = args
+#     def __init__(self, args): 
+#         self.args = args
 
-        self.logger =logging.getLogger(self.args.logger_name)
+#         self.logger =logging.getLogger(self.args.logger_name)
 
-        # initialize classes as needed 
-        self.dataprocessingclass = DataProcessing(self.args)
-        self.clustering = Clustering(self.args)
-        self.modelhelper = ModelHelper(self.args)
+#         # initialize classes as needed 
+#         self.dataprocessingclass = DataProcessing(self.args)
+#         self.clustering = Clustering(self.args)
+#         self.modelhelper = ModelHelper(self.args)
         
 
 
 
-    def begin_pipeline(self): 
-        '''
-        this does: 
-        data processing 
-        kmeans k choosing  
-        model training 
-        prediction 
-        '''
-        # this starts off the pipeline 
-        self.logger.debug('begin pipeline')
+#     def begin_pipeline(self): 
+#         '''
+#         this does: 
+#         data processing 
+#         kmeans k choosing  
+#         model training 
+#         prediction 
+#         '''
+#         # this starts off the pipeline 
+#         self.logger.debug('begin pipeline')
 
-        # first, do data processing 
-            # process the application record (x)
-            # process the credit record (y)
-            # get the joined data (x and y together)
-            # save the joined data (split as needed further down the pipeline )
-        self.dataprocessingclass.complete_data_processing()
+#         # first, do data processing 
+#             # process the application record (x)
+#             # process the credit record (y)
+#             # get the joined data (x and y together)
+#             # save the joined data (split as needed further down the pipeline )
+#         self.dataprocessingclass.complete_data_processing()
 
-        self.clustering.driver()
+#         self.clustering.driver()
 
-        # then, do model building 
-            # this is where the branching off has to be done 
-            # build modular code so that i can reuse sections as needed 
-        self.modelhelper.driver()
+#         # then, do model building 
+#             # this is where the branching off has to be done 
+#             # build modular code so that i can reuse sections as needed 
+#         self.modelhelper.driver()
 
-        self.logger.debug('pipeline for data and model finished')
-        return 
+#         self.logger.debug('pipeline for data and model finished')
+#         return 
 
-    def build_code(self): 
-        self.logger.debug('work on section - NOT full pipeline: modelhelper')
+#     def build_code(self): 
+#         self.logger.debug('work on section - NOT full pipeline: modelhelper')
 
-        self.modelhelper.driver()
-        pass 
+#         self.modelhelper.driver()
+#         pass 

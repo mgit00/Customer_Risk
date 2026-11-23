@@ -2,15 +2,23 @@ from .utils import Utils
 from .models import SLP, FNN, KMeansFNN, AutoencoderKmeansFNN
 from .train import Train 
 from .plotting import Plotting
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PowerTransformer
 import torch 
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader   
 import pickle 
 import logging 
+import numpy as np 
+from sklearn.utils.class_weight import compute_class_weight
 
 from utils.schemas import ModelTrainingBasemodel
 from utils.constants import ConstantFilenames, ModelType
+
+from torch.utils.data import WeightedRandomSampler
+
+### FIXME 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
 
 class ModelHelper: 
     '''
@@ -50,35 +58,68 @@ class ModelHelper:
         do train test split 
         '''
         # read data 
-        data = Utils.read_data(ConstantFilenames.data_filename)
+        data = Utils.read_data(ConstantFilenames.data_filename.value)
         self.logger.debug('data is loaded ')
 
         # x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
         y = data[['risk_level']]
         x = data.drop(columns = ['risk_level'])
 
-        print(x.columns, y.columns)
+        # print(x.columns, y.columns)
         scaler = StandardScaler() # fixme ---- wrong data!!!!!! ?????
-        x = scaler.fit_transform(x) # add values backto x call below!!!!! 
-        with open("model_info/data_processing/scaler.pkl", "wb") as f:
-            pickle.dump(scaler, f)
+        # x = scaler.fit_transform(x) # add values backto x call below!!!!! 
+        x = PowerTransformer(method='yeo-johnson', standardize=True).fit_transform(x) # fixme have to split to train test and to do on ytest transform only 
+        # with open("model_info/data_processing/scaler.pkl", "wb") as f:
+        #     pickle.dump(scaler, f)
+
+
+
+        print("NaNs in trainx:", np.isnan(x).sum(), "Infs:", np.isinf(x).sum())
 
         # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
         x = torch.tensor(x, dtype = torch.float32) # float32 = default for pytorch models/model layers 
-        y = torch.tensor(y.values, dtype= torch.long if self.output_mode == 'classification' else torch.float32)
-       
+        y = torch.tensor(y.values.ravel(), dtype= torch.long if self.output_mode == 'classification' else torch.float32)
+
 
         trainx, testx, trainy, testy = train_test_split(x, y, test_size=.3, random_state= 1, shuffle = True)
             # random state makes it replicable 
             # batching not done here, done in dataloader 
             # shuffle rows 
 
+         # get weights for each class 
+        ytrain= trainy.numpy().ravel()
+        classes = np.unique(ytrain)
+        weights = compute_class_weight(class_weight='balanced', classes=classes, y=ytrain)
+        class_weights = torch.tensor(weights, dtype=torch.float32)
+        self.logger.info(f'class weights are {class_weights}')
+
+        # # do sampler -- this made things worse ... 
+        # sample_weights = class_weights[trainy.cpu().view(-1)]
+        # self.sampler = WeightedRandomSampler(
+        #     weights=sample_weights,
+        #     num_samples=len(sample_weights),
+        #     replacement=True
+        # )
+
+
+        '''##### FIXME 
+        rf = RandomForestClassifier(n_estimators=200, class_weight="balanced", random_state=1)
+        rf.fit(trainx.numpy(), trainy.numpy())
+        preds = rf.predict(testx.numpy())
+
+        print("RF Test Accuracy:", accuracy_score(testy.numpy(), preds))
+        print(classification_report(testy.numpy(), preds))
+
+        return '''
+    
+
         self.logger.info('train test split for data is done')
         
         return {'trainx':trainx, 'testx':testx, 'trainy':trainy, 'testy':testy}
 
+    
     def make_dataloader(self, data: dict) -> tuple: # of dataloaders 
-        # zip into tensordataset: train and test (for train loop parts)
+        # # zip into tensordataset: train and test (for train loop parts)
 
         train = TensorDataset(data['trainx'], data['trainy'])
         test = TensorDataset(data['testx'], data['testy'])
@@ -88,6 +129,17 @@ class ModelHelper:
         test_loader = DataLoader(test, batch_size  = self.args.batch_size, shuffle = True )
             # shuffle batches, smaller batch size = less memory requirement, but more noisy updates within epoch 
             # epoch goes over entire dataset 
+
+        # # zip into tensordataset: train and test (for train loop parts)
+        
+        # train = TensorDataset(data['trainx'], data['trainy'])
+        # test = TensorDataset(data['testx'], data['testy'])
+
+        # # use dataloader to iterate through tensordatasets 
+        # train_loader = DataLoader(train, batch_size = self.args.batch_size, sampler=self.sampler,  shuffle = False)
+        # test_loader = DataLoader(test, batch_size  = self.args.batch_size, shuffle = True )
+        #     # shuffle batches, smaller batch size = less memory requirement, but more noisy updates within epoch 
+        #     # epoch goes over entire dataset 
 
         self.logger.info('tensordataset is batched and shuffled with dataloader')
         return train_loader, test_loader 

@@ -58,3 +58,4 @@ class ConstantFilenames(str, Enum): # changed from basemodel, keep these values 
     _kmeans_fnn= f'data_saved/trained_models/{ModelType.kmeans_fnn.name}/temp.pt'
     _autoencoder_kmeans_fnn= f'data_saved/trained_models/{ModelType.autoencoder_kmeans_fnn.name}/temp.pt'
 
+

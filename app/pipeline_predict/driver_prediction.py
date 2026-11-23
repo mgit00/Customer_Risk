@@ -20,6 +20,7 @@ class DriverPrediction:
         self.logger= logging.getLogger('main_logger')
 
         self.customer = customer 
+        # NOTE data from all data
         self.data = Utils.read_data(filename='./dataset/application_record.csv')
 
         self.predict = Predict(self.logger)
@@ -34,14 +35,22 @@ class DriverPrediction:
             - autoencoder+ kmeans+ fnn classification model
             - both kmeans models 
         '''
+        paths = ['data_saved/data_processing/application_record_pipeline.pkl',
+                 'data_saved/trained_models/slp/model.pt',
+                 'data_saved/trained_models/fnn/model.pt',
+                 'data_saved/trained_models/kmeans_fnn/model.pt',
+                 'data_saved/trained_models/autoencoder_kmeans_fnn/model.pt',
+                 'data_saved/trained_models/kmeans_fnn/kmeans_model.pt',
+                 'data_saved/trained_models/autoencoder_kmeans_fnn/kmeans_model.pt',
+                 ]
 
-        paths= ['./model_info/data_processing/application_record_pipeline.pkl', 
-                './model_info/saved_models/model_classification_slp.pt', 
-                './model_info/saved_models/model_classification_fnn.pt', 
-                './model_info/saved_models/model_classification_kmeans+fnn.pt', 
-                './model_info/saved_models/model_classification_autoencoder+kmeans+fnn.pt', 
-                './model_info/saved_models/clustering/kmeans_model.pkl', 
-                './model_info/saved_models/clustering/autoencoder_kmeans_model.pkl']
+        # paths= ['./model_info/data_processing/application_record_pipeline.pkl', 
+        #         './model_info/saved_models/model_classification_slp.pt', 
+        #         './model_info/saved_models/model_classification_fnn.pt', 
+        #         './model_info/saved_models/model_classification_kmeans+fnn.pt', 
+        #         './model_info/saved_models/model_classification_autoencoder+kmeans+fnn.pt', 
+        #         './model_info/saved_models/clustering/kmeans_model.pkl', 
+        #         './model_info/saved_models/clustering/autoencoder_kmeans_model.pkl']
         for path in paths: 
             if Path (path).is_file(): 
                 pass 

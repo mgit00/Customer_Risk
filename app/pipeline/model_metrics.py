@@ -3,6 +3,7 @@ from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score
 from enum import Enum 
 
 from typeguard import typechecked 
+import torch 
 
 class Levels(Enum): 
     '''
@@ -90,8 +91,8 @@ class ModelMetrics:
         if self.mode == 'mse': 
             return 
 
-        self.f1_metric = MulticlassF1Score(num_classes= 3)
-        self.f1_metric_test= MulticlassF1Score(num_classes= 3)
+        self.f1_metric = MulticlassF1Score(num_classes= 3, average='macro')
+        self.f1_metric_test= MulticlassF1Score(num_classes= 3, average='macro')
         self.accuracy_metric = MulticlassAccuracy(num_classes= 3 )
         self.accuracy_metric_test = MulticlassAccuracy(num_classes= 3 )
         
@@ -107,6 +108,10 @@ class ModelMetrics:
         update on the dataloader batch level 
         due to typechecked the levels from class Levels will throw error if wrong level is pases
         '''
+        argmaxpred = pred.argmax(dim=1)
+        # FIXME print to see if there is majority class collapse  
+        # print("Unique predictions:", torch.unique(argmaxpred, return_counts=True))
+        # print(argmaxpred[:5], pred[:5], target[:5])
         if level.value == 'train': 
             self.epoch_loss+= loss 
             if self.mode == 'cel': 
