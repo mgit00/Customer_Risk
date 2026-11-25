@@ -29,7 +29,7 @@ class ModelState:
         self.args = args # note args are dynamic and will be adjusted through pipeline
         # args saved are the args called at the time of save model
 
-        self.logger = logging.getLogger(self.args.logger_name)
+        self.logger = logging.getLogger('main_logger')
 
         self.model_state_dict= None 
         self.optimizer_state_dict= None 

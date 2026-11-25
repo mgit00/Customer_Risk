@@ -1,6 +1,7 @@
 import pandas as pd 
 from .utils import Utils 
 
+from utils.constants import ConstantFilenames
 from sklearn.preprocessing import OrdinalEncoder, LabelEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
@@ -21,9 +22,9 @@ class DataProcessing:
     application_record -> applications_processed 
     credit_record -> customer_risk 
     '''
-    def __init__(self, args): 
-        self.args= args 
-        self.logger= logging.getLogger(self.args.logger_name)
+    def __init__(self): 
+        self.logger= logging.getLogger('main_logger')
+        self.output_mode= 'classification'
 
     def complete_data_processing(self): 
         '''
@@ -36,22 +37,22 @@ class DataProcessing:
 
         self.logger.debug('doing full data processing ')
 
-        og_credit_record= Utils.read_data(filename=self.args.credit_record)
-        og_application_record = Utils.read_data(filename=self.args.application_record)
+        og_credit_record= Utils.read_data(filename=ConstantFilenames.credit_record.value)
+        og_application_record = Utils.read_data(filename=ConstantFilenames.application_record.value)
 
         customer_risk = self.customer_risk_processing(og_credit_record)
         applications, applications_pipeline= self.cc_applications_processing(og_application_record)
 
         # customer risk processing has no pipeline, but applications does, save pipeline 
-        Utils.save_pipeline(pipeline= applications_pipeline, location = self.args.data_pipeline)
-        self.logger.info('credit application pipeline saved: ' +self.args.data_pipeline)
+        Utils.save_pipeline(pipeline= applications_pipeline, location = ConstantFilenames.data_pipeline.value)
+        self.logger.info('credit application pipeline saved: ' + ConstantFilenames.data_pipeline.value)
 
         # make the joined data and save it 
         joined= self.join_data(customer_risk, applications)
             # remove id column 
         joined.drop(columns = ['ID'], axis = 1 , inplace= True )
-        Utils.save_df(df= joined, filename =self.args.data_filename)
-        self.logger.info('x, y data saved to: '+ self.args.data_filename)
+        Utils.save_df(df= joined, filename =ConstantFilenames.data_filename.value)
+        self.logger.info('x, y data saved to: '+ ConstantFilenames.data_filename.value)
 
 
     ### processing pipelines 
@@ -61,37 +62,30 @@ class DataProcessing:
         - encode status into 0-5 score 
         - sum over all months for each customer 
         - discretize into 5 categories <- categorical encoding 
-        '''
         # transform STATUS into ordinal levels  
         categories= ['X' , 'C' ] +  [str(i) for i in range(0, 6 )]
         encoder= OrdinalEncoder(categories= [categories])
         records['status_encoded'] = encoder.fit_transform(records[['STATUS']])
 
-        # group by unique customer ID 
-        records_grouped= records.groupby(by= 'ID' , axis = 0)
-        # sum over each group with agg() 
-            # use transform() if mapping back to ungrouped records df 
-        creditworthiness= records_grouped.status_encoded.agg(summed= 'sum')
-        # make ID feature from index 
-        creditworthiness.reset_index(drop= False, inplace= True )
-
-        if self.args.output_mode == 'classification': 
-            # discreditize into bins 
-            score_mean= creditworthiness.summed.where(creditworthiness.summed > 0 ).mean()
-            score_std= creditworthiness.summed.where(creditworthiness.summed > 0 ).std()
-                # pd.cut is right selctive ( , ] ranges with right= True setting 
-            ranges= (-float('inf'),0, score_mean- score_std, score_mean, score_mean + score_std, float('inf'))
-            range_titles= range(0, 5) # range_titles= ('none', 'low', 'medium_low', 'medium_high', 'high')
-            creditworthiness['risk_level']= pd.cut(creditworthiness['summed'], bins=ranges, labels=range_titles, right= True)
-            
-            # drop unneded cols 
-            creditworthiness.drop(labels=['summed'], axis = 1, inplace=True )
-
-        else : # regression
-            creditworthiness.rename( {'summed': 'risk_level'}, axis = 1, inplace= True )
+        changed how the risk score is calculated 
+        - encode status into 0-2 score 
+        - sum over all months for each customer 
+        - discretize into 3 categories <- categorical encoding 
+        '''
+        # alter catecories 
+        mapping = {'X': 'no_risk', 'C': 'no_risk', 
+                   '0': 'low_risk', 
+                   '1': 'high_risk' ,'2':'high_risk', '3':'high_risk', '4':'high_risk', '5':'high_risk'}
+        records['STATUS']= records['STATUS'].replace(mapping)
+        # transform STATUS into ordinal levels  
+        categories= ['no_risk', 'low_risk', 'high_risk']
+        encoder= OrdinalEncoder(categories= [categories])
+        records['status_encoded'] = encoder.fit_transform(records[['STATUS']])
 
         self.logger.info('customer risk data processed' )
-        return creditworthiness
+        # return creditworthiness
+        records.rename({'status_encoded':'risk_level'}, axis = 1, inplace= True )
+        return records[['ID', 'risk_level']]
 
     def cc_applications_processing(self, apps ) -> tuple: # pd.DataFrame, pipeline: 
         '''
@@ -131,6 +125,7 @@ class DataProcessing:
         '''
         res = customer_risk.merge(applications, on='ID', how= 'inner') 
         # drop the ID column later on in the process 
+        res= res.drop_duplicates(subset= ['ID'])
 
         self.logger.debug('full joined x,y data done')
         return res 

@@ -10,8 +10,10 @@ from torch.nn import CrossEntropyLoss, MSELoss
 class Train: 
     def __init__(self, args) -> None:
         self.args = args 
-        
-        self.logger = logging.getLogger(self.args.logger_name)
+        self.output_mode= 'classification'
+        self.logger = logging.getLogger('main_logger')
+
+        self.weights = torch.tensor([ 0.4397,  1.4364, 33.7553], dtype=torch.float32)
 
 
     def get_loss_func(self, model_name ): 
@@ -20,7 +22,7 @@ class Train:
         if model_name =='Autoencoder': 
             self.logger.info('loss function autoencoder: mse')
             return MSELoss()
-        elif self.args.output_mode =='classification': 
+        elif self.output_mode =='classification': 
             self.logger.info('loss function: cross entropy')
             return CrossEntropyLoss()
         else : 
@@ -54,8 +56,8 @@ class Train:
 
         self.logger.debug('in training loop ')
 
-        self.args.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.logger.info('device used: ' + str(self.args.device) ) # torch.cuda.current_device() gives integer 
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.logger.info('device used: ' + str(device) ) # torch.cuda.current_device() gives integer 
 
         ''' data and model setting up '''
         self.logger.debug('setting up data, model, optimizer, loss function ')
@@ -64,24 +66,26 @@ class Train:
         # place data on device when iterating, this places batch on device to save memory
 
         # place model on device 
-        model= model.to(self.args.device)
+        model= model.to(device)
 
         # ensure that all params have gradient computations enabled 
             # this can be false for fnn of autoencoder kemans fnn model since autoencoder shouldn't be trained anymore
         self.logger.debug('all model params require gradient: '+ str(all(param.requires_grad for param in model.parameters())))
         
         # make optimizer 
-        optimizer = Adam(model.parameters(), lr = self.args.lr)
+        optimizer = Adam(model.parameters(), lr = self.args.lr, weight_decay= 1e-2)
 
-        # get loss function CEL or MSEL based on classification or regression 
+        # # get loss function CEL or MSEL based on classification or regression 
         loss_func = self.get_loss_func(model_name= model.__class__.__name__)
-
+        # loss_func = CrossEntropyLoss(weight=torch.sqrt(self.weights).to(device))
 
         ''' model metrics and state are initialized ''' 
         self.logger.debug('initializing model metrics and model state class ')
         # initlalize model metrics, these are never affected by a model being loaded in 
             # these are specific to 1 call fo this function 
         mode = LossFunc.MSE if loss_func.__class__.__name__ == 'MSELoss' else LossFunc.CrossEntropyLoss
+        # mode= LossFunc.CrossEntropyLoss
+        if mode == 'cel': loss_func = CrossEntropyLoss(weight=torch.sqrt(self.weights).to(device))
         modelmetrics= ModelMetrics(self.args, mode = mode )
         modelmetrics.initialize_metrics()
 
@@ -103,21 +107,28 @@ class Train:
         self.logger.debug('starting training loop')
         ### do training loop 
         for epoch in range(self.args.epochs): 
-            modelmetrics.initalize_metric_trackers() # reset metrics for this epoch 
+            # print(f"Epoch {epoch}")
+            # print("Bias:", model.layer.bias.detach().cpu())
+            # print("Weight norms:", model.layer.weight.norm(dim=1).detach().cpu())
+            # print(loss_func)
+
+            modelmetrics.initalize_metric_trackers(device) # reset metrics for this epoch 
 
             model.train()
             # loop through batches from dataloader 
             for x,y in train_dataloader: 
                 # place onto gpu if available 
-                x,y = x.to(self.args.device), y.to(self.args.device)
+                x,y = x.to(device), y.to(device)
                 
                 pred = model(x)
+                            
 
                 if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                     y= y.flatten() # for CEL
+
                 loss = loss_func(pred, y) 
                 
-                modelmetrics.update_batch_level(loss.item(),  pred, y, level = Levels.TRAIN)
+                modelmetrics.update_batch_level(loss.item()/len(train_dataloader),  pred, y, level = Levels.TRAIN)
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -127,20 +138,25 @@ class Train:
             with torch.no_grad(): # disable gradient computation
                 for x,y in test_dataloader: 
                     # place onto gpu if needed 
-                    x,y = x.to(self.args.device), y.to(self.args.device)
+                    x,y = x.to(device), y.to(device)
 
                     pred = model(x)
+                    # print(pred[:10])
+                    
+                    # print(torch.unique(torch.argmax(pred, dim = 1), return_counts= True ))
 
                     if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                         y= y.flatten() # for CEL
                     loss = loss_func(pred,y)
 
-                    modelmetrics.update_batch_level(loss.item(), pred, y, level = Levels.TEST)
+                    modelmetrics.update_batch_level(loss.item()/len(test_dataloader), pred, y, level = Levels.TEST)
 
         
-
+                
             modelmetrics.update_epoch_level() # calculate the metrics at the end of this epoch 
             print('Epoch', model_state_class.epochs+ epoch, 'Train Loss', modelmetrics.epoch_loss, 'Test Loss', modelmetrics.epoch_loss_test)
+            # print(modelmetrics.accuracy, modelmetrics.accuracy_test, 
+            # modelmetrics.f1score, modelmetrics.f1score_test)
             
 
 

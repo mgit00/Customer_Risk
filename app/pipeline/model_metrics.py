@@ -3,6 +3,7 @@ from torchmetrics.classification import MulticlassAccuracy, MulticlassF1Score
 from enum import Enum 
 
 from typeguard import typechecked 
+import torch 
 
 class Levels(Enum): 
     '''
@@ -34,11 +35,11 @@ class ModelMetrics:
     '''
 
     def __init__(self, args, mode): 
-        self.args =args 
-        # note args are self updating: changing args after initialization changes them here too 
-            # namespace property
+        # self.args =args 
+        # # note args are self updating: changing args after initialization changes them here too 
+        #     # namespace property
         self.mode = mode.value # mse or cel 
-        self.logger = logging.getLogger(self.args.logger_name)
+        self.logger = logging.getLogger('main_logger')
 
     ### epoch level 
     def initialize_metrics(self):
@@ -78,7 +79,7 @@ class ModelMetrics:
         return 
 
     ### dataloader level 
-    def initalize_metric_trackers(self): 
+    def initalize_metric_trackers(self, device): 
         '''
         initialize classification metrics
             has to be done every epoch 
@@ -90,15 +91,15 @@ class ModelMetrics:
         if self.mode == 'mse': 
             return 
 
-        self.f1_metric = MulticlassF1Score(num_classes= 5)
-        self.f1_metric_test= MulticlassF1Score(num_classes= 5)
-        self.accuracy_metric = MulticlassAccuracy(num_classes= 5 )
-        self.accuracy_metric_test = MulticlassAccuracy(num_classes= 5 )
+        self.f1_metric = MulticlassF1Score(num_classes= 3, average='macro')
+        self.f1_metric_test= MulticlassF1Score(num_classes= 3, average='macro')
+        self.accuracy_metric = MulticlassAccuracy(num_classes= 3 )
+        self.accuracy_metric_test = MulticlassAccuracy(num_classes= 3 )
         
-        self.f1_metric.to(self.args.device)
-        self.f1_metric_test.to(self.args.device)
-        self.accuracy_metric.to(self.args.device)
-        self.accuracy_metric_test.to(self.args.device)
+        self.f1_metric.to(device)
+        self.f1_metric_test.to(device)
+        self.accuracy_metric.to(device)
+        self.accuracy_metric_test.to(device)
         return 
 
     @typechecked
@@ -107,6 +108,10 @@ class ModelMetrics:
         update on the dataloader batch level 
         due to typechecked the levels from class Levels will throw error if wrong level is pases
         '''
+        argmaxpred = pred.argmax(dim=1)
+        # print to see if there is majority class collapse  
+        # print("Unique predictions:", torch.unique(argmaxpred, return_counts=True))
+        # print(argmaxpred[:5], pred[:5], target[:5])
         if level.value == 'train': 
             self.epoch_loss+= loss 
             if self.mode == 'cel': 
