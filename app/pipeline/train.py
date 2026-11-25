@@ -143,7 +143,7 @@ class Train:
                     pred = model(x)
                     # print(pred[:10])
                     
-                    # fixme print(torch.unique(torch.argmax(pred, dim = 1), return_counts= True ))
+                    # print(torch.unique(torch.argmax(pred, dim = 1), return_counts= True ))
 
                     if mode == LossFunc.CrossEntropyLoss: # if loss_func.__class__.__name__ == 'CrossEntropyLoss': 
                         y= y.flatten() # for CEL

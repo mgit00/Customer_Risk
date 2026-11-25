@@ -23,10 +23,6 @@ from utils.constants import ConstantFilenames
 
 
 
-# TODO move over code from fastapi_setup 
-
-
-
 
 @asynccontextmanager
 async def project_lifespan(app:FastAPI): 

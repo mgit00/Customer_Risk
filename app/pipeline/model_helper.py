@@ -16,7 +16,6 @@ from utils.constants import ConstantFilenames, ModelType
 
 from torch.utils.data import WeightedRandomSampler
 
-### FIXME 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
@@ -66,15 +65,13 @@ class ModelHelper:
         x = data.drop(columns = ['risk_level'])
 
         # print(x.columns, y.columns)
-        scaler = StandardScaler() # fixme ---- wrong data!!!!!! ?????
+        scaler = StandardScaler() 
         # x = scaler.fit_transform(x) # add values backto x call below!!!!! 
         x = PowerTransformer(method='yeo-johnson', standardize=True).fit_transform(x) # fixme have to split to train test and to do on ytest transform only 
         # with open("model_info/data_processing/scaler.pkl", "wb") as f:
         #     pickle.dump(scaler, f)
 
-
-
-        print("NaNs in trainx:", np.isnan(x).sum(), "Infs:", np.isinf(x).sum())
+        # print("NaNs in trainx:", np.isnan(x).sum(), "Infs:", np.isinf(x).sum())
 
         # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
         x = torch.tensor(x, dtype = torch.float32) # float32 = default for pytorch models/model layers 
@@ -102,7 +99,7 @@ class ModelHelper:
         # )
 
 
-        '''##### FIXME 
+        '''  
         rf = RandomForestClassifier(n_estimators=200, class_weight="balanced", random_state=1)
         rf.fit(trainx.numpy(), trainy.numpy())
         preds = rf.predict(testx.numpy())

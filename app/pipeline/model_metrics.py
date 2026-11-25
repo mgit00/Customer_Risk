@@ -109,7 +109,7 @@ class ModelMetrics:
         due to typechecked the levels from class Levels will throw error if wrong level is pases
         '''
         argmaxpred = pred.argmax(dim=1)
-        # FIXME print to see if there is majority class collapse  
+        # print to see if there is majority class collapse  
         # print("Unique predictions:", torch.unique(argmaxpred, return_counts=True))
         # print(argmaxpred[:5], pred[:5], target[:5])
         if level.value == 'train': 

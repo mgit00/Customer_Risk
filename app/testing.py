@@ -16,7 +16,7 @@ from utils.constants import ConstantFilenames, ModelType
 
 from pipeline.utils import Utils 
 
-### FIXME 
+### FIXME - can remove file 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
