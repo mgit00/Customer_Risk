@@ -72,7 +72,7 @@ class MainDriver:
         '''
         given customer id, give the risk of opening credit for that customer 
         '''
-        # TODO 
+        # DONE 
         driver = PredictCustomer(customer)
         # pass onto rest of pipeline 
 
@@ -139,12 +139,6 @@ class MainDriver:
 
         pass 
 
-    def evaluate_models(self) -> str: 
-        '''
-        do evaluation scoring from the evaluation dataset on all 4 of the models 
-        '''
-        # TODO 
-        pass 
 
 
 
@@ -160,7 +154,7 @@ class HelperDriver:
         logger= logging.getLogger('main_logger') # keep logger name instead of __name__, this won't be a problem when imported - where __main__ becomes main
         # level_attr = getattr(logging, 'debug'.upper()) # similar tp logging.DEBUG
         level_attr = getattr(logging, config_settings.logger_level.upper())
-        logging.basicConfig(filename ='model_info/logger.log', filemode='w',  level = level_attr)
+        logging.basicConfig(filename ='logger.log', filemode='w',  level = level_attr)
             
         # needed for printing 
         console = logging.StreamHandler()
@@ -170,17 +164,17 @@ class HelperDriver:
         logger.debug('finshed logger initialization')
 
 
-from utils.constants import ModelType
-hd = MainDriver()
-hd.start_app()
-# hd.process_data()
-'''
-### WORKING 
-# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .0001, batch_size = 64, epochs= 15, load_model = False))
-# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .001, epochs= 2, load_model = True))
-'''
-hd.train_model(ModelTrainingBasemodel(model_type= ModelType.slp, lr = .0001, batch_size = 64, epochs= 15, load_model = True))
+# from utils.constants import ModelType
+# hd = MainDriver()
+# hd.start_app()
+# # hd.process_data()
+# '''
+# ### WORKING 
+# # hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .0001, batch_size = 64, epochs= 15, load_model = False))
+# # hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .001, epochs= 2, load_model = True))
+# '''
+# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.slp, lr = .0001, batch_size = 64, epochs= 15, load_model = True))
 
-# hd.calculate_customer_risk(CustomerAttributes())
+# # hd.calculate_customer_risk(CustomerAttributes())
 
-# python -m src.main_driver
+# # python -m src.main_driver
