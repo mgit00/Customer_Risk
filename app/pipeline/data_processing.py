@@ -255,7 +255,7 @@ class DataProcessing:
         merge the data based on id 
         - note that mergeing is for columns and join is for indecies 
         '''
-        res = customer_risk.merge(applications, on='ID', how= 'inner') 
+        res = customer_risk.merge(applications, on='ID', how= 'inner') # FIXME change to left join on applications id 
         # drop the ID column later on in the process 
         res= res.drop_duplicates(subset= ['ID'])
 

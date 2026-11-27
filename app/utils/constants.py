@@ -40,10 +40,9 @@ class ConstantFilenames(str, Enum): # changed from basemodel, keep these values 
 
 
     ### processed data 
-    # saved pipeline
-    data_pipeline = 'data_saved/data_processing/application_record_pipeline.pkl'
     # saved processed data file 
-    data_filename = 'data_saved/data_processing/data.csv'
+    data_filename = 'dataset/processed/torch_data.pt'
+
 
 
     ### for clustering model saving: 
