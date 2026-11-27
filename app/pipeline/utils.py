@@ -97,6 +97,9 @@ class Utils:
 
     @staticmethod
     def check_loaded_dataset() -> None: 
+        # FIXME do this for dataset.zip into dataset_/ folder 
+        #   this will look at new processed data 
+         
         logger= logging.getLogger('main_logger')
 
         data_file = "dataset/application_record.csv"

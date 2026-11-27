@@ -3,6 +3,7 @@
 .DS_Store
 dataset/
 NOTES.md
+app/data_saved/data_processing/data_exploration_final_apps.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

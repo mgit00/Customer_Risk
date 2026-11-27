@@ -31,7 +31,7 @@ class PredictCustomer:
         self.level_options= {0: 'no risk', 
                          1: 'low risk', 
                          2: 'high risk'} # ('none', 'low', 'high')
-        self.input_size, self.output_size = 35, 3 
+        self.input_size, self.output_size = 35, 3 # FIXME chage input size to new dataset 
 
         self.customer = customer 
 
