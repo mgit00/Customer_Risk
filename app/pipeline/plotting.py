@@ -88,7 +88,7 @@ class Plotting:
         plt.legend()
 
         filename= args.plot_filepath + 'accuracy.png'
-        # plt.savefig(filename) # can also do in utils if wanted
+        plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
         # plt.show()
         return 
@@ -105,7 +105,7 @@ class Plotting:
         plt.legend()
 
         filename= args.plot_filepath + 'f1score.png'
-        # plt.savefig(filename) # can also do in utils if wanted
+        plt.savefig(filename) # can also do in utils if wanted
         self.logger.info('plot saved to: ' + filename)
         # plt.show()
         return 

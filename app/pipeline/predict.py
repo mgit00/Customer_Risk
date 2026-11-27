@@ -31,7 +31,7 @@ class PredictCustomer:
         self.level_options= {0: 'no risk', 
                          1: 'low risk', 
                          2: 'high risk'} # ('none', 'low', 'high')
-        self.input_size, self.output_size = 47, 3 
+        self.input_size, self.output_size = 48, 3 
 
         self.customer = customer 
 

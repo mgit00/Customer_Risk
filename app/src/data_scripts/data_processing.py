@@ -41,7 +41,7 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.compose import ColumnTransformer 
 from sklearn.pipeline import FunctionTransformer, Pipeline
-from sklearn.preprocessing import OrdinalEncoder , KBinsDiscretizer, OneHotEncoder, StandardScaler, RobustScaler, MinMaxScaler, PowerTransformer
+from sklearn.preprocessing import OrdinalEncoder , KBinsDiscretizer, OneHotEncoder, StandardScaler, RobustScaler, MinMaxScaler, PowerTransformer, QuantileTransformer
 from sklearn.base import BaseEstimator
 
 
@@ -189,7 +189,7 @@ class DataProcessing:
             'xtrain': torch.tensor(xtrain.values, dtype = torch.float32), 
             'xtest': torch.tensor(xtest.values, dtype = torch.float32), 
             'ytrain': torch.tensor(ytrain.values, dtype = torch.long), 
-            'ytrain': torch.tensor(ytrain.values, dtype = torch.long)
+            'ytest': torch.tensor(ytest.values, dtype = torch.long)
         } , 'dataset/processed/torch_data.pt')
         self.logger.debug('saved data')
 
@@ -226,7 +226,7 @@ class DataProcessing:
         discretize = ColumnTransformer(
             transformers=[
                 ('keep id', 'passthrough', ['ID']),
-                ('risk', KBinsDiscretizer(n_bins = 3, encode = 'ordinal', strategy= 'quantile'), ['STATUS'])
+                ('risk', KBinsDiscretizer(n_bins = 3, encode = 'ordinal', strategy= 'uniform'), ['STATUS'])
             ], 
             remainder= 'drop', 
             verbose_feature_names_out=False
@@ -369,7 +369,8 @@ class DataProcessing:
                 ('column_preprocessing', function_transfomer_preprocess), 
                 ('squash_skeq', squash_skew), # ignore for now 
                 ('encoders', encoders), 
-                ('scalers', scalers)
+                ('scalers', scalers), 
+                ('standard_scaling', QuantileTransformer(n_quantiles=1000, output_distribution='normal', random_state=1))
             ]
         ).set_output(transform = 'pandas')
 
@@ -379,10 +380,10 @@ class DataProcessing:
         return transformed_df, pipeline 
 
     
-dp= DataProcessing()
+# dp= DataProcessing()
 
-# dp.zip_data()
-dp.unzip_data()
+# # dp.zip_data()
+# dp.unzip_data()
 
 
 # python -m src.data_scripts.data_processing

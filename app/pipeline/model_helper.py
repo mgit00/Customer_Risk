@@ -19,7 +19,7 @@ from torch.utils.data import WeightedRandomSampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
-class ModelHelper: 
+class ModelHelper: # FIXME want to take in processed data 
     '''
     model helper class to implement needed functions for train.py 
     - load + split data into x and y 
@@ -50,69 +50,75 @@ class ModelHelper:
     
 
     def load_data(self) -> dict: # return train, test for x, y 
-        '''
-        load data for the purpose of model creation 
-        split data into x,y 
-        make tensors 
-        do train test split 
-        '''
-        # read data 
-        data = Utils.read_data(ConstantFilenames.data_filename.value)
-        self.logger.debug('data is loaded ')
+        # '''
+        # load data for the purpose of model creation 
+        # split data into x,y 
+        # make tensors 
+        # do train test split 
+        # '''
+        # # read data 
+        # data = Utils.read_data(ConstantFilenames.data_filename.value)
+        # self.logger.debug('data is loaded ')
 
-        # x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
-        y = data[['risk_level']]
-        x = data.drop(columns = ['risk_level'])
+        # # x,y = data.iloc[:, :-1], data.iloc[:, -1:] # df, and df (not series, makes mode code more complicated to switch between classificaiton and regression later on) 
+        # y = data[['risk_level']]
+        # x = data.drop(columns = ['risk_level'])
 
-        # print(x.columns, y.columns)
-        scaler = StandardScaler() 
-        # x = scaler.fit_transform(x) # add values backto x call below!!!!! 
-        x = PowerTransformer(method='yeo-johnson', standardize=True).fit_transform(x) # fixme have to split to train test and to do on ytest transform only 
-        # with open("model_info/data_processing/scaler.pkl", "wb") as f:
-        #     pickle.dump(scaler, f)
+        # # print(x.columns, y.columns)
+        # scaler = StandardScaler() 
+        # # x = scaler.fit_transform(x) # add values backto x call below!!!!! 
+        # x = PowerTransformer(method='yeo-johnson', standardize=True).fit_transform(x) # fixme have to split to train test and to do on ytest transform only 
+        # # with open("model_info/data_processing/scaler.pkl", "wb") as f:
+        # #     pickle.dump(scaler, f)
 
-        # print("NaNs in trainx:", np.isnan(x).sum(), "Infs:", np.isinf(x).sum())
+        # # print("NaNs in trainx:", np.isnan(x).sum(), "Infs:", np.isinf(x).sum())
 
-        # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
-        x = torch.tensor(x, dtype = torch.float32) # float32 = default for pytorch models/model layers 
-        y = torch.tensor(y.values.ravel(), dtype= torch.long if self.output_mode == 'classification' else torch.float32)
-
-
-        trainx, testx, trainy, testy = train_test_split(x, y, test_size=.3, random_state= 1, shuffle = True)
-            # random state makes it replicable 
-            # batching not done here, done in dataloader 
-            # shuffle rows 
-
-         # get weights for each class 
-        ytrain= trainy.numpy().ravel()
-        classes = np.unique(ytrain)
-        weights = compute_class_weight(class_weight='balanced', classes=classes, y=ytrain)
-        class_weights = torch.tensor(weights, dtype=torch.float32)
-        self.logger.info(f'class weights are {class_weights}')
-
-        # # do sampler -- this made things worse ... 
-        # sample_weights = class_weights[trainy.cpu().view(-1)]
-        # self.sampler = WeightedRandomSampler(
-        #     weights=sample_weights,
-        #     num_samples=len(sample_weights),
-        #     replacement=True
-        # )
+        # # y has to be long if using crossentropy loss (classification) or float32 for mse loss (regression)
+        # x = torch.tensor(x, dtype = torch.float32) # float32 = default for pytorch models/model layers 
+        # y = torch.tensor(y.values.ravel(), dtype= torch.long if self.output_mode == 'classification' else torch.float32)
 
 
-        '''  
-        rf = RandomForestClassifier(n_estimators=200, class_weight="balanced", random_state=1)
-        rf.fit(trainx.numpy(), trainy.numpy())
-        preds = rf.predict(testx.numpy())
+        # trainx, testx, trainy, testy = train_test_split(x, y, test_size=.3, random_state= 1, shuffle = True)
+        #     # random state makes it replicable 
+        #     # batching not done here, done in dataloader 
+        #     # shuffle rows 
 
-        print("RF Test Accuracy:", accuracy_score(testy.numpy(), preds))
-        print(classification_report(testy.numpy(), preds))
+        #  # get weights for each class 
+        # ytrain= trainy.numpy().ravel()
+        # classes = np.unique(ytrain)
+        # weights = compute_class_weight(class_weight='balanced', classes=classes, y=ytrain)
+        # class_weights = torch.tensor(weights, dtype=torch.float32)
+        # self.logger.info(f'class weights are {class_weights}')
 
-        return '''
+        # # # do sampler -- this made things worse ... 
+        # # sample_weights = class_weights[trainy.cpu().view(-1)]
+        # # self.sampler = WeightedRandomSampler(
+        # #     weights=sample_weights,
+        # #     num_samples=len(sample_weights),
+        # #     replacement=True
+        # # )
+
+
+        # '''  
+        # rf = RandomForestClassifier(n_estimators=200, class_weight="balanced", random_state=1)
+        # rf.fit(trainx.numpy(), trainy.numpy())
+        # preds = rf.predict(testx.numpy())
+
+        # print("RF Test Accuracy:", accuracy_score(testy.numpy(), preds))
+        # print(classification_report(testy.numpy(), preds))
+
+        # return '''
+
+
     
 
-        self.logger.info('train test split for data is done')
-        
-        return {'trainx':trainx, 'testx':testx, 'trainy':trainy, 'testy':testy}
+        # self.logger.info('train test split for data is done')
+        torch_data= torch.load(ConstantFilenames.data_filename, weights_only=True) # processed data already split 
+
+        return {'trainx':torch_data['xtrain'], 'testx':torch_data['xtest'], 
+                'trainy':torch_data['ytrain'], 'testy':torch_data['ytest']}
+
+         
 
     
     def make_dataloader(self, data: dict) -> tuple: # of dataloaders 

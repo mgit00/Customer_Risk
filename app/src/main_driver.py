@@ -9,7 +9,7 @@ from pipeline.utils import Utils
 from utils.schemas import CustomerAttributes, ModelTrainingBasemodel, KMeansExplorationBasemodel
 from utils.constants import ConstantFilenames
 
-from pipeline.data_processing import DataProcessing
+from src.data_scripts.data_processing import DataProcessing
 from pipeline.model_helper import ModelHelper
 from pipeline.clustering import Clustering
 
@@ -104,12 +104,7 @@ class MainDriver:
         # this starts off the pipeline 
         self.logger.debug('begin data processing')
         dataprocessingclass = DataProcessing()
-        # first, do data processing 
-            # process the application record (x)
-            # process the credit record (y)
-            # get the joined data (x and y together)
-            # save the joined data (split as needed further down the pipeline )
-        dataprocessingclass.complete_data_processing()
+        dataprocessingclass.driver()
         self.logger.debug('finished data processing')
         pass 
 
@@ -164,17 +159,18 @@ class HelperDriver:
         logger.debug('finshed logger initialization')
 
 
-# from utils.constants import ModelType
-# hd = MainDriver()
-# hd.start_app()
-# # hd.process_data()
-# '''
-# ### WORKING 
-# # hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .0001, batch_size = 64, epochs= 15, load_model = False))
-# # hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .001, epochs= 2, load_model = True))
-# '''
-# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.slp, lr = .0001, batch_size = 64, epochs= 15, load_model = True))
+from utils.constants import ModelType
+hd = MainDriver()
+hd.start_app()
+# hd.process_data()
+'''
+### WORKING 
+# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .0001, batch_size = 64, epochs= 15, load_model = False))
+# hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .001, epochs= 2, load_model = True))
+'''
+# hd.process_data()
+hd.train_model(ModelTrainingBasemodel(model_type= ModelType.fnn, lr = .0001, batch_size = 200, epochs= 20, load_model = True))
 
-# # hd.calculate_customer_risk(CustomerAttributes())
+# hd.calculate_customer_risk(CustomerAttributes())
 
-# # python -m src.main_driver
+# python -m src.main_driver
